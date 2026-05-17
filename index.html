@@ -130,8 +130,9 @@ function initMap(){
     setTimeout(()=>searchZone(z.lat,z.lng,z.r),i*400);
   });
 
-  // Also search when user moves map
+  // Also search when user moves map AND update list
   gMap.addListener('idle',()=>{
+    renderList(); // Update sidebar to show only visible clinics
     const c=gMap.getCenter();
     const key=Math.round(c.lat()*100)+','+Math.round(c.lng()*100);
     if(!searched.has(key)){
@@ -175,7 +176,10 @@ function getR(){const b=gMap.getBounds();if(!b)return 12000;return Math.min(5000
 
 function renderList(){
   const q=(document.getElementById('sI').value||'').toLowerCase();
+  const bounds=gMap?gMap.getBounds():null;
   let list=all.filter(p=>{
+    // MadVet always visible regardless of bounds
+    if(!p.mv&&bounds&&!bounds.contains({lat:p.lat,lng:p.lng}))return false;
     if(q&&!p.name.toLowerCase().includes(q)&&!(p.addr||'').toLowerCase().includes(q))return false;
     if(filt==='24h'&&!p.is24)return false;
     if(filt==='open'&&p.isOpen!==true)return false;
@@ -184,7 +188,7 @@ function renderList(){
   }).sort((a,b)=>(b.mv?10:0)-(a.mv?10:0)||((b.rating||0)*Math.log10((b.rc||1)+1))-((a.rating||0)*Math.log10((a.rc||1)+1)));
 
   document.getElementById('stT').textContent=list.length;
-  document.getElementById('st24').textContent=all.filter(p=>p.is24).length;
+  document.getElementById('st24').textContent=list.filter(p=>p.is24).length;
 
   const mvL=list.filter(p=>p.mv),rest=list.filter(p=>!p.mv);
   let h='';
