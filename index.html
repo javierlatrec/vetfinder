@@ -18,6 +18,8 @@ header{display:flex;align-items:center;gap:14px;padding:0 24px;height:62px;backg
 .wrap{display:flex;flex:1;overflow:hidden}
 .side{width:440px;min-width:440px;display:flex;flex-direction:column;border-right:1px solid var(--brd);background:var(--card);z-index:500}
 .fbar{padding:10px 14px;border-bottom:1px solid var(--brd);display:flex;gap:5px;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}.fbar::-webkit-scrollbar{display:none}
+.sbar{padding:6px 14px;border-bottom:1px solid var(--brd);display:flex;gap:5px;align-items:center;background:var(--brdL);font:500 11px/1 var(--f);color:var(--dim)}.sbar span{margin-right:4px}
+.so{padding:5px 12px;border-radius:14px;font:600 11px/1 var(--f);cursor:pointer;border:1px solid transparent;background:none;color:var(--dim);transition:all .15s}.so:hover{color:var(--g1)}.so.on{background:var(--card);color:var(--g1);border-color:var(--brd);box-shadow:var(--sh)}
 .ch{height:32px;padding:0 14px;border-radius:16px;font:600 11.5px/32px var(--f);cursor:pointer;border:1.5px solid var(--brd);background:var(--card);color:var(--dim);transition:all .15s;white-space:nowrap;flex-shrink:0}.ch:hover{border-color:var(--g1);color:var(--g1)}.ch.on{background:var(--g1);color:#fff;border-color:var(--g1);box-shadow:0 2px 8px rgba(10,117,88,.2)}
 .cl{flex:1;overflow-y:auto;padding:4px 0}
 .sec-l{padding:14px 16px 8px;font:700 10px/1 var(--fH);letter-spacing:2px;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:8px}.sec-l::after{content:'';flex:1;height:1px;background:var(--brd)}.sec-l .n{background:var(--gL);color:var(--g1);font:700 10px/1 var(--f);padding:3px 9px;border-radius:10px;letter-spacing:0}
@@ -54,7 +56,7 @@ header{display:flex;align-items:center;gap:14px;padding:0 24px;height:62px;backg
   <div class="hdr-r"><div class="hdr-n"><b id="stT">0</b><small>Clínicas</small></div><div class="hdr-n"><b id="st24">0</b><small>24h</small></div></div>
 </header>
 <div class="wrap">
-  <div class="side"><div class="fbar" id="fbar"></div><div class="cl" id="cl"><div class="ld"><div class="ld-s"></div>Cargando clínicas de Madrid...</div></div></div>
+  <div class="side"><div class="fbar" id="fbar"></div><div class="sbar" id="sbar"></div><div class="cl" id="cl"><div class="ld"><div class="ld-s"></div>Cargando clínicas de Madrid...</div></div></div>
   <div class="map-w"><div id="map"></div><button class="emg" onclick="showEmg()">🚨 Urgencias 24h</button></div>
 </div>
 <div class="ov" id="ov" onclick="closeDP()"></div>
@@ -67,7 +69,7 @@ const MV=[
   {pid:"ChIJJcHwJj6IQQ0Rm11Up0mqAHM",name:"Centro Vet. Parque Aluche",addr:"C. de Quero 57, Latina, Madrid",lat:40.3905,lng:-3.7605,rating:4.8,rc:259,ph:"+34 917 17 18 22",web:"https://madvet.es",offer:"Pack vacunación cachorro",mv:1,is24:false}
 ];
 
-let gMap,gSvc,all=[],activeId=null,filt='all',searched=new Set();
+let gMap,gSvc,all=[],activeId=null,filt='all',sort='best',searched=new Set();
 const stH=r=>{let s='';for(let i=1;i<=5;i++)s+=`<svg viewBox="0 0 24 24" fill="${i<=Math.round(r||0)?'#D4950A':'none'}" stroke="${i<=Math.round(r||0)?'#D4950A':'#D1D5E0'}" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;return s;};
 const stT=r=>'★'.repeat(Math.round(r||0))+'☆'.repeat(5-Math.round(r||0));
 
@@ -185,7 +187,12 @@ function renderList(){
     if(filt==='open'&&p.isOpen!==true)return false;
     if(filt==='top'&&(p.rating||0)<4.5)return false;
     return true;
-  }).sort((a,b)=>(b.mv?10:0)-(a.mv?10:0)||((b.rating||0)*Math.log10((b.rc||1)+1))-((a.rating||0)*Math.log10((a.rc||1)+1)));
+  }).sort((a,b)=>{
+    if(a.mv&&!b.mv)return -1;if(!a.mv&&b.mv)return 1;
+    if(sort==='reviews')return (b.rc||0)-(a.rc||0);
+    if(sort==='rating')return (b.rating||0)-(a.rating||0);
+    return ((b.rating||0)*Math.log10((b.rc||1)+1))-((a.rating||0)*Math.log10((a.rc||1)+1));
+  });
 
   document.getElementById('stT').textContent=list.length;
   document.getElementById('st24').textContent=list.filter(p=>p.is24).length;
@@ -211,6 +218,7 @@ ${p.offer?`<div class="c-offer">🎁 ${p.offer}</div>`:''}
 
 function renderFilters(){
   document.getElementById('fbar').innerHTML=[['all','Todas'],['24h','🕐 24h / Urgencias'],['open','✅ Abiertas ahora'],['top','⭐ Top rated']].map(([k,l])=>`<button class="ch ${filt===k?'on':''}" onclick="filt='${k}';renderList();renderFilters()">${l}</button>`).join('');
+  document.getElementById('sbar').innerHTML=`<span>Ordenar:</span>`+[['best','Mejor combinación'],['rating','Mayor rating'],['reviews','Más reseñas']].map(([k,l])=>`<button class="so ${sort===k?'on':''}" onclick="sort='${k}';renderList();renderFilters()">${l}</button>`).join('');
 }
 
 function loadDP(pid){
