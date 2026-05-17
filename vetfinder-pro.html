@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VetFinder Madrid</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f8f8f5;--card:#fff;--acc:#0d9668;--acc2:#087e57;--accL:#eaf7f1;--accG:rgba(13,150,104,.08);--gold:#eab308;--red:#dc2626;--orange:#f59e0b;--txt:#1a1d2e;--dim:#6b7280;--dimL:#9ca3af;--brd:#e5e7eb;--brdL:#f3f4f6;--sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);--shL:0 4px 16px rgba(0,0,0,.08);--r:12px;--f:'Plus Jakarta Sans',system-ui,sans-serif}
+body{font-family:var(--f);background:var(--bg);color:var(--txt);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:16px;padding:12px 20px;background:var(--card);border-bottom:1px solid var(--brd);z-index:1000;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-mark{width:34px;height:34px;background:linear-gradient(135deg,var(--acc),var(--acc2));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px}
+.logo-name{font-size:18px;font-weight:800;color:var(--txt);letter-spacing:-.5px}
+.logo-name span{color:var(--acc)}
+.search{flex:1;max-width:420px;display:flex;align-items:center;gap:8px;background:var(--brdL);border:1px solid var(--brd);border-radius:10px;padding:8px 14px;transition:border .2s}
+.search:focus-within{border-color:var(--acc);background:#fff}
+.search input{flex:1;border:none;outline:none;background:none;font-size:13px;color:var(--txt);font-family:var(--f)}
+.search input::placeholder{color:var(--dimL)}
+.search svg{flex-shrink:0;color:var(--dimL)}
+.hdr-stats{display:flex;gap:16px;margin-left:auto;flex-shrink:0}
+.hdr-stat{text-align:center}
+.hdr-stat-n{font-size:16px;font-weight:800;color:var(--acc)}
+.hdr-stat-l{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px}
+.main{display:flex;flex:1;overflow:hidden}
+.side{width:440px;min-width:440px;display:flex;flex-direction:column;background:var(--bg);border-right:1px solid var(--brd);z-index:500}
+.filters{padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--brd);background:var(--card)}
+.chip{padding:6px 13px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:var(--card);color:var(--dim);transition:all .15s;white-space:nowrap;font-family:var(--f)}
+.chip:hover{border-color:var(--acc);color:var(--acc)}.chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.list{flex:1;overflow-y:auto;padding:6px 0}.list::-webkit-scrollbar{width:5px}.list::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
+.sec{padding:12px 16px 4px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:8px}.sec::after{content:'';flex:1;height:1px;background:var(--brd)}
+.card{margin:5px 12px;padding:14px 16px;background:var(--card);border:1px solid var(--brd);border-radius:var(--r);cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.card:hover{border-color:var(--acc);box-shadow:var(--sh)}.card.feat{border-color:rgba(13,150,104,.25)}.card.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,var(--acc),#10b981)}
+.card.active{border-color:var(--acc);box-shadow:0 0 0 2px var(--accG),var(--shL)}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card-name{font-size:13.5px;font-weight:700;line-height:1.25;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-badges{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.badge-mv{display:inline-flex;align-items:center;gap:3px;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:5px}
+.badge-ver{font-size:9px;color:var(--acc);font-weight:600;display:flex;align-items:center;gap:2px}
+.card-addr{font-size:11px;color:var(--dim);margin-top:3px;display:flex;align-items:center;gap:3px}
+.card-meta{display:flex;gap:10px;margin:8px 0;align-items:center;flex-wrap:wrap}
+.stars{color:var(--gold);font-size:11px;letter-spacing:-1px}.card-rating{font-size:12px;font-weight:700}.card-reviews{font-size:11px;color:var(--dim)}
+.tag-24h{font-size:10px;font-weight:700;color:var(--orange);display:flex;align-items:center;gap:2px}
+.card-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+.tag{font-size:10px;padding:2px 8px;background:var(--brdL);border-radius:5px;color:var(--dim);font-weight:500}.card.feat .tag{background:var(--accL);color:var(--acc)}
+.card-offer{display:flex;align-items:center;gap:5px;padding:5px 10px;background:#fefce8;border-radius:7px;margin-bottom:6px;font-size:10.5px;font-weight:600;color:#92400e}
+.card-btns{display:flex;gap:6px;margin-top:8px}
+.btn-cita{flex:1;padding:8px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;font-size:11.5px;font-weight:700;cursor:pointer;font-family:var(--f);transition:all .15s}.btn-cita:hover{box-shadow:0 3px 12px rgba(13,150,104,.3)}
+.btn-tel{padding:8px 12px;border-radius:8px;border:1px solid var(--brd);background:var(--card);font-size:11.5px;font-weight:500;color:var(--txt);cursor:pointer;font-family:var(--f);display:flex;align-items:center;gap:4px;transition:all .15s;text-decoration:none}.btn-tel:hover{border-color:var(--acc)}
+.btn-ruta{padding:8px;border-radius:8px;border:1px solid var(--brd);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all .15s}.btn-ruta:hover{border-color:var(--acc)}
+.map-wrap{flex:1;position:relative}
+#map{width:100%;height:100%}
+.leaflet-tile-pane{filter:saturate(.4) brightness(.92) contrast(1.05)}
+.mk{border-radius:50% 50% 50% 4px;display:flex;align-items:center;justify-content:center;transform:rotate(-45deg);box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.mk-f{width:38px;height:38px;background:linear-gradient(135deg,var(--acc),#10b981);border:3px solid #fff;animation:mkP 2.5s infinite}
+.mk-n{width:28px;height:28px;background:var(--card);border:2px solid var(--brd)}.mk-n.h24{border-color:var(--orange)}
+.mk-inner{transform:rotate(45deg);font-size:14px;line-height:1}.mk-f .mk-inner{font-size:16px}
+@keyframes mkP{0%,100%{box-shadow:0 3px 10px rgba(13,150,104,.4)}50%{box-shadow:0 3px 20px rgba(13,150,104,.7),0 0 0 6px rgba(13,150,104,.08)}}
+.leaflet-popup-content-wrapper{background:var(--card)!important;border-radius:10px!important;box-shadow:var(--shL)!important;border:1px solid var(--brd)!important;padding:0!important}
+.leaflet-popup-tip{background:var(--card)!important}
+.leaflet-popup-content{margin:12px 14px!important;font-family:var(--f)!important;font-size:13px!important;line-height:1.4!important}
+.popup-name{font-weight:700;font-size:13px;margin-bottom:2px}.popup-addr{font-size:11px;color:var(--dim)}.popup-meta{display:flex;gap:8px;align-items:center;margin-top:5px;font-size:11px}
+.popup-btn{display:block;width:100%;margin-top:8px;padding:7px;border-radius:7px;border:none;background:var(--acc);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--f);text-align:center}
+.map-legend{position:absolute;bottom:16px;left:16px;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border:1px solid var(--brd);border-radius:10px;padding:10px 14px;z-index:800;display:flex;gap:16px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)}.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.emg-fab{position:absolute;bottom:16px;right:16px;z-index:800;display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:12px;background:linear-gradient(135deg,var(--red),#b91c1c);color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--f);box-shadow:0 4px 20px rgba(220,38,38,.4);transition:all .2s}.emg-fab:hover{box-shadow:0 4px 30px rgba(220,38,38,.6);transform:scale(1.03)}
+.detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;display:none;justify-content:flex-end}.detail-overlay.open{display:flex}
+.detail-panel{width:440px;background:var(--card);height:100%;overflow-y:auto;box-shadow:-4px 0 30px rgba(0,0,0,.12)}
+.dp-header{padding:20px 20px 16px;border-bottom:1px solid var(--brd);position:relative}
+.dp-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:8px;background:var(--brdL);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--dim)}.dp-close:hover{background:var(--brd)}
+.dp-name{font-size:18px;font-weight:800;line-height:1.25;padding-right:40px}
+.dp-addr{font-size:12px;color:var(--dim);margin-top:4px}.dp-meta{display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.dp-tabs{display:flex;border-bottom:1px solid var(--brd)}.dp-tab{flex:1;padding:11px 0;font-size:12px;font-weight:600;color:var(--dim);border:none;background:none;cursor:pointer;font-family:var(--f);border-bottom:2px solid transparent;margin-bottom:-1px}.dp-tab.on{color:var(--acc);border-bottom-color:var(--acc)}
+.dp-body{padding:16px 20px 20px}.dp-section{font-size:13px;font-weight:700;margin-bottom:8px}
+.dp-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:16px}.dp-tag{font-size:11px;padding:5px 12px;background:var(--accL);border-radius:7px;color:var(--acc);font-weight:500}
+.dp-hours{background:var(--brdL);border-radius:10px;padding:12px 14px;font-size:12px;margin-bottom:16px}.dp-hours-row{display:flex;justify-content:space-between;margin-bottom:4px}.dp-hours-row:last-child{margin:0}
+.dp-actions{display:flex;gap:8px}.dp-btn-main{flex:1;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--f);text-align:center;text-decoration:none;display:block}
+.dp-btn-sec{flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--brd);background:var(--card);font-size:13px;font-weight:600;color:var(--txt);cursor:pointer;font-family:var(--f);text-align:center;text-decoration:none;display:block}
+.dp-review{padding:12px;background:var(--brdL);border-radius:10px;margin-bottom:8px}.dp-review-user{font-weight:700;font-size:12px}.dp-review-text{font-size:12px;line-height:1.5;margin-top:3px}
+.dp-empty{text-align:center;padding:30px;color:var(--dim);font-size:12px}
+.no-results{text-align:center;padding:50px 20px;color:var(--dim);font-size:13px}
+@media(max-width:900px){.main{flex-direction:column}.side{width:100%;min-width:100%;height:50vh;border-right:none;border-top:1px solid var(--brd);order:2}.map-wrap{height:50vh;order:1}.hdr-stats{display:none}.search{max-width:none}.detail-panel{width:100%}.map-legend{display:none}}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="logo"><div class="logo-mark">VF</div><div class="logo-name">Vet<span>Finder</span></div></div>
+  <div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Buscar clínica, zona o servicio..."></div>
+  <div class="hdr-stats" id="hdrStats"></div>
+</div>
+<div class="main">
+  <div class="side"><div class="filters" id="filters"></div><div class="list" id="clinicList"></div></div>
+  <div class="map-wrap">
+    <div id="map"></div>
+    <div class="map-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--acc)"></div>MadVet</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--brd);border:2px solid var(--dim)"></div>Clínica</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--brd);border:2px solid var(--orange)"></div>24h</div>
+    </div>
+    <button class="emg-fab" onclick="showEmergency()">🚨 Urgencias 24h</button>
+  </div>
+</div>
+<div class="detail-overlay" id="detailOverlay" onclick="closeDetail()"><div class="detail-panel" id="detailPanel" onclick="event.stopPropagation()"></div></div>
+<script>
+const CL=[
+{id:"mv1",n:"Hospital Veterinario MadVet",z:"Majadahonda",a:"C. Fresa 2, CC Equinoccio, Majadahonda",lat:40.4545,lng:-3.8758,r:4.9,rc:261,f:1,h24:0,v:1,p:"€€",ph:"+34 682 62 82 38",w:"https://madvet.es",hr:"L-V 10:00–20:00 | Sábado 10:00–14:00",sv:["Medicina general","Cirugía","Ecografía","Dermatología","Oftalmología","Laboratorio","Dental","Oncología"],of:"1ª consulta -50%",rv:[{u:"María G.",s:5,t:"Trato increíble. Muy profesionales y cercanos."},{u:"Carlos R.",s:5,t:"Ecografía impecable del Dr. Kevin."}]},
+{id:"mv2",n:"Centro Veterinario MadVet Las 4 Huellas",z:"San Agustín del Guadalix",a:"Trav. Cuatro Calles 15, San Agustín",lat:40.6796,lng:-3.6174,r:4.8,rc:307,f:1,h24:0,v:1,p:"€€",ph:"+34 911 13 41 49",w:"https://madvet.es",hr:"L-V 10:00–20:00 | Sábado 10:00–14:00",sv:["Cirugía avanzada","TAC","Ecografía","Hospitalización","Traumatología","Dental"],of:"",rv:[{u:"Laura M.",s:5,t:"Transmiten confianza desde el primer momento."}]},
+{id:"mv3",n:"Centro Veterinario Parque Aluche",z:"Aluche",a:"C. de Quero 57, Latina, Madrid",lat:40.3905,lng:-3.7605,r:4.8,rc:259,f:1,h24:0,v:1,p:"€",ph:"+34 917 17 18 22",w:"https://madvet.es",hr:"L-V 10:00–20:00 | Sábado 10:00–13:30",sv:["Medicina general","Vacunación","Cirugía","Dental","Peluquería","Chip ID"],of:"Pack vacunación cachorro",rv:[{u:"Sofía L.",s:5,t:"Cercanísimos y precios razonables."}]},
+{id:"c1",n:"Medivet Hospital 24h Majadahonda",z:"Majadahonda",a:"Av. Dr. Marañón 6, Majadahonda",lat:40.4738,lng:-3.8763,r:3.8,rc:595,f:0,h24:1,v:1,p:"€€€",ph:"+34 916 39 42 27",hr:"24 horas",sv:["Urgencias 24h","Cirugía","Hospitalización","Farmacia"],of:"",rv:[]},
+{id:"c2",n:"Clínica Veterinaria El Tejar",z:"Majadahonda",a:"Trav. Navaluenga 1, Majadahonda",lat:40.4762,lng:-3.8537,r:4.9,rc:279,f:0,h24:0,v:0,p:"€€",ph:"+34 916 39 32 61",hr:"L-V 10–14 / 16:30–20:30 | S 10–14",sv:["Medicina general","Cirugía","Dermatología"],of:"",rv:[]},
+{id:"c3",n:"Clínica Veterinaria Las Huertas",z:"Majadahonda",a:"C. Huertas 2, Majadahonda",lat:40.478,lng:-3.8718,r:4.6,rc:234,f:0,h24:0,v:0,p:"€€",ph:"+34 916 38 74 51",hr:"L-V 10–19 | S 10:30–13:30",sv:["Medicina general","Vacunación","Nutrición"],of:"",rv:[]},
+{id:"c4",n:"WECAN Integra Veterinaria",z:"Majadahonda",a:"C. San Vicente 5, Majadahonda",lat:40.4725,lng:-3.8789,r:4.9,rc:147,f:0,h24:0,v:1,p:"€€",ph:"+34 916 38 43 12",hr:"L-V 10–14 / 16–20",sv:["Med. integrativa","Cat Friendly","Etología"],of:"",rv:[]},
+{id:"c5",n:"CV San Agustín",z:"San Agustín del Guadalix",a:"Pl. Juan Carlos I 1",lat:40.6794,lng:-3.6158,r:5.0,rc:214,f:0,h24:0,v:1,p:"€",ph:"+34 918 41 90 34",hr:"L-V 10–14 / 17–20:30 | S 10:30–13:30",sv:["Medicina general","Cirugía","Urgencias"],of:"",rv:[]},
+{id:"c6",n:"Double Dog Veterinary",z:"San Agustín del Guadalix",a:"Av. Madrid 43, San Agustín",lat:40.6836,lng:-3.612,r:4.8,rc:137,f:0,h24:0,v:0,p:"€€",ph:"+34 677 33 66 69",hr:"L-V 10–20 | S 10–14",sv:["Medicina general","English spoken"],of:"",rv:[]},
+{id:"c7",n:"Privet Hospital 24h",z:"Aluche",a:"C. Illescas 215, Latina",lat:40.39,lng:-3.7525,r:3.7,rc:3231,f:0,h24:1,v:1,p:"€€€",ph:"+34 917 17 73 28",hr:"24 horas",sv:["Urgencias 24h","Cirugía","UCI","Endoscopia"],of:"",rv:[]},
+{id:"c8",n:"CV Selva",z:"Aluche",a:"C. Camarena 251, Latina",lat:40.3858,lng:-3.7571,r:4.8,rc:206,f:0,h24:0,v:0,p:"€",ph:"+34 917 17 10 50",hr:"L-V 10:30–14 / 17–20",sv:["Medicina general","Exóticos"],of:"",rv:[]},
+{id:"c9",n:"CV Macao",z:"Aluche",a:"C. Quero 105, Latina",lat:40.3889,lng:-3.761,r:4.8,rc:529,f:0,h24:0,v:1,p:"€€",ph:"+34 911 19 34 35",hr:"L-V 9:30–20:30 | S 10–14",sv:["Medicina general","Cirugía","Dental","Ecografía"],of:"",rv:[]},
+{id:"c10",n:"CV El Bosque",z:"Latina",a:"C. Illescas 215, Latina",lat:40.3898,lng:-3.7523,r:4.0,rc:2276,f:0,h24:0,v:0,p:"€€",ph:"+34 686 64 53 85",hr:"L-V 10–20",sv:["Medicina general","Exóticos","Urgencias"],of:"",rv:[]},
+{id:"c11",n:"Zarcovet",z:"Las Rozas",a:"C. Castillo Belmonte 2, Las Rozas",lat:40.5052,lng:-3.8943,r:4.7,rc:421,f:0,h24:0,v:0,p:"€€",ph:"+34 637 03 82 82",hr:"L-V 10–20:30 | S 10:30–14",sv:["Medicina general","Cirugía","Dental"],of:"",rv:[]},
+{id:"c12",n:"WECAN Las Rozas",z:"Las Rozas",a:"C. Dragonera 5, Las Rozas",lat:40.5342,lng:-3.9001,r:4.8,rc:191,f:0,h24:0,v:1,p:"€€",ph:"+34 916 31 84 95",hr:"L-V 11–14 / 17–20 | S 10:30–13",sv:["Cat Friendly","Geriatría","Cirugía"],of:"",rv:[]},
+{id:"c13",n:"Medivet Európolis",z:"Las Rozas",a:"C. Dublín 31, Las Rozas",lat:40.5037,lng:-3.8917,r:4.5,rc:353,f:0,h24:0,v:1,p:"€€",ph:"+34 916 37 95 06",hr:"L-V 9–20 | S 10–14",sv:["Medicina general","Oncología","Cirugía"],of:"",rv:[]},
+{id:"c14",n:"Veterinaria Peñalara 24H",z:"Pozuelo de Alarcón",a:"C. Peñalara 2, Pozuelo",lat:40.4573,lng:-3.8026,r:4.5,rc:649,f:0,h24:1,v:1,p:"€€",ph:"+34 913 51 14 22",hr:"24 horas",sv:["Urgencias 24h","Exóticos","Cirugía"],of:"",rv:[]},
+{id:"c15",n:"CV Petclub",z:"Boadilla del Monte",a:"Av. Siglo XXI 12, Boadilla",lat:40.4069,lng:-3.8991,r:4.9,rc:294,f:0,h24:0,v:0,p:"€€",ph:"+34 660 99 90 65",hr:"L-V 10–21 | S 10–14",sv:["Medicina general","Nefrología","Cirugía"],of:"",rv:[]},
+{id:"c16",n:"HURVET Urgencias Oeste",z:"Boadilla del Monte",a:"Av. Isabel de Farnesio 2, Boadilla",lat:40.411,lng:-3.886,r:4.6,rc:419,f:0,h24:1,v:1,p:"€€€",ph:"+34 914 17 39 77",hr:"24 horas",sv:["Urgencias 24h","Cirugía","UCI"],of:"",rv:[]},
+{id:"c17",n:"VETAREA",z:"Boadilla del Monte",a:"Av. Nuevo Mundo 10, Boadilla",lat:40.4064,lng:-3.8876,r:5.0,rc:107,f:0,h24:0,v:0,p:"€€",ph:"+34 663 87 51 57",hr:"L-V 10–15 / 16–20 | S 10–13",sv:["Medicina general","Cirugía","Laboratorio"],of:"",rv:[]},
+{id:"c18",n:"CV Silvican",z:"Boadilla del Monte",a:"Av. Isabel Farnesio 34, Boadilla",lat:40.399,lng:-3.8848,r:4.8,rc:283,f:0,h24:0,v:0,p:"€",ph:"+34 916 32 66 37",hr:"L-V 10–13:30 / 16:30–20 | S 10–13:30",sv:["Traumatología","Cirugía"],of:"",rv:[]},
+{id:"c19",n:"Hospital Siglo XXI Boadilla",z:"Boadilla del Monte",a:"Av. Siglo XXI 13, Boadilla",lat:40.4067,lng:-3.9004,r:4.8,rc:276,f:0,h24:0,v:0,p:"€€",ph:"+34 644 70 68 36",hr:"L-V 10–22 | S-D 10–16",sv:["Medicina general","Cirugía"],of:"",rv:[]},
+{id:"c20",n:"CV Lovets",z:"V. del Pardillo",a:"Av. Juan Carlos I 5, V. Pardillo",lat:40.4926,lng:-3.9592,r:4.8,rc:351,f:0,h24:0,v:0,p:"€€",ph:"+34 918 12 31 86",hr:"L-V 10–21 | S 11–14",sv:["Cirugía","Oncología"],of:"",rv:[]},
+{id:"c21",n:"URBEVET Exóticos",z:"V. del Pardillo",a:"C. San Juan Cruz 1, V. Pardillo",lat:40.4886,lng:-3.9658,r:5.0,rc:85,f:0,h24:0,v:0,p:"€",ph:"+34 919 36 53 80",hr:"L-V 10–14 / 16:30–20 | S 10–13:30",sv:["Exóticos","Conejos","Medicina general"],of:"",rv:[]},
+{id:"c22",n:"Vet. Músicos",z:"Tres Cantos",a:"Sector Músicos 15, Tres Cantos",lat:40.6067,lng:-3.7173,r:4.8,rc:376,f:0,h24:0,v:1,p:"€€",ph:"+34 910 54 71 06",hr:"L-V 9:30–14 / 17–20",sv:["Medicina general","Exóticos","Traumatología"],of:"",rv:[]},
+{id:"c23",n:"CV Foresta",z:"Tres Cantos",a:"Sector Foresta 5, Tres Cantos",lat:40.6131,lng:-3.7089,r:4.8,rc:353,f:0,h24:0,v:1,p:"€€",ph:"+34 918 03 42 87",hr:"L-V 11–20 | S 11–14",sv:["Geriatría","Dental","Cirugía"],of:"",rv:[]},
+{id:"c24",n:"CV Colmenar",z:"Colmenar Viejo",a:"C. César Gómez de Lucía 1",lat:40.6598,lng:-3.7648,r:4.8,rc:288,f:0,h24:0,v:0,p:"€",ph:"+34 918 45 59 01",hr:"L-V 10–14 / 17–20 | S 10–14",sv:["Medicina general","Vacunación"],of:"",rv:[]},
+{id:"c25",n:"Medivet Santa Teresa",z:"Colmenar Viejo",a:"C. Gimialcón 3, Colmenar Viejo",lat:40.6674,lng:-3.7782,r:4.5,rc:572,f:0,h24:0,v:1,p:"€€",ph:"+34 918 45 54 12",hr:"L-V 9:30–20:30 | S 9:30–13:30",sv:["Medicina general","Cirugía","Farmacia"],of:"",rv:[]},
+{id:"c26",n:"HV San Antón",z:"Colmenar Viejo",a:"Av. Libertad 93, Colmenar Viejo",lat:40.6586,lng:-3.7588,r:4.4,rc:333,f:0,h24:0,v:0,p:"€€",ph:"+34 918 46 14 46",hr:"L-V 9–19 | S 10:30–14",sv:["Hospital","Cirugía","Diagnóstico"],of:"",rv:[]},
+{id:"c27",n:"Hospital Vet. Madrid Norte",z:"Alcobendas",a:"C. Fantasía 3, Alcobendas",lat:40.5524,lng:-3.6578,r:4.5,rc:1378,f:0,h24:1,v:1,p:"€€€",ph:"+34 912 29 17 00",hr:"24 horas",sv:["Urgencias 24h","Neurología","Oncología","UCI","Cardiología"],of:"",rv:[]},
+{id:"c28",n:"HV Madrid Centro",z:"Madrid Centro",a:"C. Velázquez 136, Chamartín",lat:40.4393,lng:-3.6829,r:4.2,rc:218,f:0,h24:1,v:1,p:"€€€",ph:"+34 919 90 09 10",hr:"24 horas",sv:["Urgencias 24h","Nefrología","UCI"],of:"",rv:[]},
+{id:"c29",n:"Hospital Clínico Vet. UCM",z:"Moncloa",a:"Av. Puerta de Hierro s/n",lat:40.4493,lng:-3.7406,r:4.5,rc:1685,f:0,h24:1,v:1,p:"€",ph:"+34 913 94 37 55",hr:"24 horas",sv:["Hospital universitario","Todas las especialidades","Urgencias 24h"],of:"",rv:[]},
+{id:"c30",n:"HV Mediterráneo",z:"Retiro",a:"Av. Mediterráneo 14, Retiro",lat:40.4072,lng:-3.6764,r:4.3,rc:3203,f:0,h24:1,v:1,p:"€€€",ph:"+34 915 51 48 59",hr:"24 horas",sv:["Urgencias 24h","Oncología","Neurología","Cardiología"],of:"",rv:[]},
+{id:"c31",n:"HV Retiro",z:"Retiro",a:"Av. Menéndez Pelayo 9",lat:40.4213,lng:-3.6795,r:3.9,rc:1638,f:0,h24:1,v:1,p:"€€",ph:"+34 914 09 36 00",hr:"24 horas",sv:["Urgencias 24h","Cirugía","English spoken"],of:"",rv:[]},
+{id:"c32",n:"HV Madrid Sur",z:"Getafe",a:"C. Villaverde 19, Getafe",lat:40.31,lng:-3.7278,r:3.9,rc:735,f:0,h24:0,v:1,p:"€€",ph:"+34 916 82 33 31",hr:"L-V 9:30–22 | S-D 10:30–22",sv:["Cirugía","Hospitalización"],of:"",rv:[]},
+{id:"c33",n:"HV Simbiosis",z:"Getafe",a:"C. Concha Espina 6, Getafe",lat:40.3267,lng:-3.7235,r:4.1,rc:338,f:0,h24:1,v:1,p:"€€",ph:"+34 913 25 50 66",hr:"24 horas",sv:["Urgencias 24h","Traumatología","Dental"],of:"",rv:[]},
+{id:"c34",n:"HV VETSIA",z:"Leganés",a:"C. Galileo 3, Leganés",lat:40.311,lng:-3.8048,r:4.1,rc:4770,f:0,h24:1,v:1,p:"€€€",ph:"+34 914 98 41 12",hr:"24 horas",sv:["Urgencias 24h","Oncología","Neurología","UCI","Rehabilitación"],of:"",rv:[]},
+{id:"c35",n:"ERVET Urgencias",z:"Alcorcón",a:"C. Tordesillas 4, Alcorcón",lat:40.3526,lng:-3.8253,r:3.6,rc:632,f:0,h24:1,v:0,p:"€€€",ph:"+34 916 12 63 38",hr:"24 horas",sv:["Urgencias 24h","Cirugía"],of:"",rv:[]},
+{id:"c36",n:"Vet. Alcorcón",z:"Alcorcón",a:"C. Cáceres 30, Alcorcón",lat:40.3446,lng:-3.8337,r:4.5,rc:249,f:0,h24:0,v:0,p:"€",ph:"+34 916 43 53 81",hr:"L-V 10–20",sv:["Medicina general","Exóticos"],of:"",rv:[]},
+{id:"c37",n:"CV Los Cantos",z:"Alcorcón",a:"C. Zamora 1, Alcorcón",lat:40.3437,lng:-3.8313,r:4.6,rc:392,f:0,h24:0,v:0,p:"€€",ph:"+34 916 43 18 92",hr:"L-V 10:30–14 / 17:30–20 | S 10:30–14",sv:["Medicina general","Cirugía"],of:"",rv:[]},
+{id:"c38",n:"HV Estoril",z:"Móstoles",a:"Av. Portugal 4, Móstoles",lat:40.3293,lng:-3.8584,r:4.3,rc:3210,f:0,h24:1,v:1,p:"€€€",ph:"+34 916 46 66 25",hr:"24 horas",sv:["Urgencias 24h","Rehabilitación","Cirugía"],of:"",rv:[]},
+{id:"c39",n:"CV Móstoles",z:"Móstoles",a:"C. Rubens 6, Móstoles",lat:40.329,lng:-3.8709,r:4.6,rc:218,f:0,h24:0,v:0,p:"€",ph:"+34 916 14 41 82",hr:"L-V 10:30–13:30 / 17–20",sv:["Medicina integrativa","Cirugía","Dental"],of:"",rv:[]},
+{id:"c40",n:"Veterinarea Villalba 24H",z:"Collado Villalba",a:"Av. Reina Victoria 9, Villalba",lat:40.6409,lng:-4.0293,r:4.1,rc:1559,f:0,h24:1,v:1,p:"€€",ph:"+34 918 50 20 69",hr:"24 horas",sv:["Urgencias 24h","Cirugía"],of:"",rv:[]},
+{id:"c41",n:"IF Centro Vet. Villalba",z:"Collado Villalba",a:"Pl. los Belgas 12, C. Villalba",lat:40.628,lng:-4.0037,r:4.3,rc:1149,f:0,h24:1,v:1,p:"€€",ph:"+34 918 51 13 93",hr:"24 horas",sv:["Urgencias 24h","Cirugía","Diagnóstico"],of:"",rv:[]},
+];
+
+let map,markers={},activeId=null,filter='all',query='';
+const starsH=r=>'★'.repeat(Math.round(r))+'☆'.repeat(5-Math.round(r));
+
+function initMap(){
+  map=L.map('map',{center:[40.45,-3.75],zoom:10,zoomControl:false});
+  L.control.zoom({position:'topright'}).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'©OSM ©CARTO',maxZoom:19}).addTo(map);
+  CL.forEach(c=>{
+    const ic=L.divIcon({className:'',html:`<div class="mk ${c.f?'mk-f':'mk-n'} ${!c.f&&c.h24?'h24':''}"><span class="mk-inner">${c.f?'✚':'●'}</span></div>`,iconSize:c.f?[38,38]:[28,28],iconAnchor:c.f?[6,38]:[4,28],popupAnchor:c.f?[14,-32]:[10,-24]});
+    const m=L.marker([c.lat,c.lng],{icon:ic,zIndexOffset:c.f?1000:0}).addTo(map)
+      .bindPopup(`<div class="popup-name">${c.n}</div><div class="popup-addr">${c.a}</div><div class="popup-meta"><span style="color:var(--gold)">★</span> <b>${c.r}</b> <span style="color:var(--dim)">(${c.rc.toLocaleString()})</span>${c.h24?' <span style="color:var(--orange);font-weight:700">24h</span>':''}${c.f?' <span style="color:var(--acc);font-weight:700">MadVet</span>':''}</div><button class="popup-btn" onclick="openDetail('${c.id}')">Ver clínica →</button>`,{maxWidth:250});
+    m.on('click',()=>setActive(c.id));markers[c.id]=m;
+  });
+}
+
+function renderFilters(){
+  const ff=[['all','Todas'],['24h','🕐 24h'],['urgencias','🚨 Urgencias'],['cirugia','🔪 Cirugía'],['exoticos','🦎 Exóticos'],['top','⭐ Top rated'],['ofertas','🎁 Ofertas']];
+  document.getElementById('filters').innerHTML=ff.map(([k,l])=>`<button class="chip ${filter===k?'on':''}" onclick="setFilter('${k}')">${l}</button>`).join('');
+}
+function setFilter(f){filter=f;render();}
+
+function render(){
+  query=document.getElementById('searchInput').value.toLowerCase().trim();
+  let list=CL.filter(c=>{
+    const qm=!query||c.n.toLowerCase().includes(query)||c.z.toLowerCase().includes(query)||c.a.toLowerCase().includes(query)||c.sv.some(s=>s.toLowerCase().includes(query));
+    const fm=filter==='all'||(filter==='24h'&&c.h24)||(filter==='urgencias'&&c.sv.some(s=>s.toLowerCase().includes('urgencia')))||(filter==='cirugia'&&c.sv.some(s=>s.toLowerCase().includes('cirugía')))||(filter==='exoticos'&&c.sv.some(s=>s.toLowerCase().includes('exótico')||s.toLowerCase().includes('exoticos')||s.toLowerCase().includes('conejos')))||(filter==='top'&&c.r>=4.7)||(filter==='ofertas'&&c.of);
+    return qm&&fm;
+  }).sort((a,b)=>(b.f?10:0)-(a.f?10:0)||(b.r*Math.log10(b.rc+1))-(a.r*Math.log10(a.rc+1)));
+  renderFilters();
+  document.getElementById('hdrStats').innerHTML=`<div class="hdr-stat"><div class="hdr-stat-n">${list.length}</div><div class="hdr-stat-l">Clínicas</div></div><div class="hdr-stat"><div class="hdr-stat-n">${list.filter(c=>c.h24).length}</div><div class="hdr-stat-l">24h</div></div><div class="hdr-stat"><div class="hdr-stat-n">${list.filter(c=>c.r>=4.7).length}</div><div class="hdr-stat-l">Top</div></div>`;
+  const feat=list.filter(c=>c.f),rest=list.filter(c=>!c.f);
+  let html='';
+  if(feat.length){html+=`<div class="sec">★ Recomendadas</div>`;feat.forEach(c=>html+=cardHTML(c));}
+  if(rest.length){html+=`<div class="sec">Todas · ${rest.length}</div>`;rest.forEach(c=>html+=cardHTML(c));}
+  if(!list.length)html=`<div class="no-results">Sin resultados para esta búsqueda</div>`;
+  document.getElementById('clinicList').innerHTML=html;
+  CL.forEach(c=>{const m=markers[c.id];list.find(x=>x.id===c.id)?(!map.hasLayer(m)&&m.addTo(map)):map.hasLayer(m)&&map.removeLayer(m);});
+}
+
+function cardHTML(c){return`<div class="card ${c.f?'feat':''} ${activeId===c.id?'active':''}" id="card-${c.id}" onclick="selectClinic('${c.id}')"><div class="card-top"><div style="flex:1;min-width:0"><div class="card-name">${c.n}</div><div class="card-addr">📍 ${c.z} ${c.p?'<b style="margin-left:4px">'+c.p+'</b>':''}</div></div><div class="card-badges">${c.f?'<span class="badge-mv">★ MadVet</span>':''}${c.v&&!c.f?'<span class="badge-ver">✓ Verificada</span>':''}</div></div><div class="card-meta"><span class="stars">${starsH(c.r)}</span><span class="card-rating">${c.r}</span><span class="card-reviews">(${c.rc.toLocaleString()})</span>${c.h24?'<span class="tag-24h">🕐 24h</span>':''}</div><div class="card-tags">${c.sv.slice(0,3).map(s=>`<span class="tag">${s}</span>`).join('')}${c.sv.length>3?`<span class="tag">+${c.sv.length-3}</span>`:''}</div>${c.of?`<div class="card-offer">🎁 ${c.of}</div>`:''}<div class="card-btns"><button class="btn-cita" onclick="event.stopPropagation();openDetail('${c.id}')">Ver clínica</button><a class="btn-tel" href="tel:${c.ph}" onclick="event.stopPropagation()">📞 Llamar</a><a class="btn-ruta" href="https://maps.google.com/?daddr=${c.lat},${c.lng}" target="_blank" onclick="event.stopPropagation()">🗺️</a></div></div>`;}
+
+function selectClinic(id){setActive(id);const c=CL.find(x=>x.id===id);if(c){map.flyTo([c.lat,c.lng],14,{duration:.6});markers[id].openPopup();}}
+function setActive(id){activeId=id;render();const el=document.getElementById('card-'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});}
+
+function openDetail(id){
+  const c=CL.find(x=>x.id===id);if(!c)return;
+  document.getElementById('detailOverlay').classList.add('open');
+  document.getElementById('detailPanel').innerHTML=`<div class="dp-header"><button class="dp-close" onclick="closeDetail()">✕</button><div class="dp-name">${c.n}</div><div class="dp-addr">📍 ${c.a}</div><div class="dp-meta"><span style="color:var(--gold)">${starsH(c.r)}</span> <b>${c.r}</b> <span style="color:var(--dim);font-size:12px">${c.rc.toLocaleString()} reseñas</span>${c.v?'<span style="font-size:10px;color:var(--acc);font-weight:700">✓ Verificada</span>':''}${c.f?'<span class="badge-mv">★ MadVet</span>':''}</div></div>
+  <div class="dp-tabs"><button class="dp-tab on" onclick="switchTab(this,'t-info')">Info</button><button class="dp-tab" onclick="switchTab(this,'t-rev')">Reseñas</button></div>
+  <div class="dp-body"><div id="t-info"><div class="dp-section">Servicios</div><div class="dp-tags">${c.sv.map(s=>`<span class="dp-tag">${s}</span>`).join('')}</div><div class="dp-section">Horario</div><div class="dp-hours">${c.hr.split('|').map(h=>`<div class="dp-hours-row">${h.trim()}</div>`).join('')}</div>${c.ph?`<div style="font-size:12px;color:var(--dim);margin-bottom:14px">📞 ${c.ph}</div>`:''}${c.of?`<div class="card-offer" style="margin-bottom:14px">🎁 ${c.of}</div>`:''}<div class="dp-actions"><a href="tel:${c.ph}" class="dp-btn-main">📞 Llamar</a><a href="https://maps.google.com/?daddr=${c.lat},${c.lng}" target="_blank" class="dp-btn-sec">🗺️ Cómo llegar</a></div>${c.w?`<a href="${c.w}" target="_blank" style="display:block;text-align:center;margin-top:12px;font-size:12px;color:var(--acc);font-weight:600">Visitar web →</a>`:''}</div><div id="t-rev" style="display:none">${c.rv.length?c.rv.map(rv=>`<div class="dp-review"><div class="dp-review-user">${rv.u} <span style="color:var(--gold);margin-left:4px">${'★'.repeat(rv.s)}</span></div><div class="dp-review-text">${rv.t}</div></div>`).join(''):`<div class="dp-empty">${c.rc.toLocaleString()} reseñas en Google · Próximamente en la app</div>`}</div></div>`;
+  selectClinic(id);
+}
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');}
+function switchTab(btn,tabId){btn.parentElement.querySelectorAll('.dp-tab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');document.querySelectorAll('.dp-body > div').forEach(d=>d.style.display='none');document.getElementById(tabId).style.display='block';}
+
+function showEmergency(){
+  const h24=CL.filter(c=>c.h24).sort((a,b)=>(b.f?1:0)-(a.f?1:0)||(b.r-a.r));
+  document.getElementById('detailOverlay').classList.add('open');
+  document.getElementById('detailPanel').innerHTML=`<div class="dp-header" style="border-bottom-color:var(--red)"><button class="dp-close" onclick="closeDetail()">✕</button><div style="text-align:center;padding:8px 0"><div style="font-size:28px;margin-bottom:6px">🚨</div><div class="dp-name" style="text-align:center;padding:0">Urgencias 24h</div><div style="font-size:12px;color:var(--dim);margin-top:4px">${h24.length} centros disponibles ahora</div></div></div><div class="dp-body" style="padding-top:8px">${h24.map(c=>`<div style="display:flex;align-items:center;gap:12px;padding:14px;background:${c.f?'var(--accL)':'var(--brdL)'};border-radius:12px;margin-bottom:8px;border:${c.f?'2px solid var(--acc)':'1px solid var(--brd)'}"><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.n}</div><div style="font-size:11px;color:var(--dim)">${c.z}</div><div style="margin-top:4px;font-size:11px"><span style="color:var(--gold)">${starsH(c.r)}</span> <b>${c.r}</b> <span style="color:var(--dim)">(${c.rc.toLocaleString()})</span></div></div><div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0"><a href="tel:${c.ph}" style="padding:8px 14px;border-radius:8px;background:linear-gradient(135deg,var(--red),#b91c1c);color:#fff;font-size:11px;font-weight:700;text-decoration:none;text-align:center">📞 Llamar</a><a href="https://maps.google.com/?daddr=${c.lat},${c.lng}" target="_blank" style="padding:6px 14px;border-radius:8px;border:1px solid var(--brd);background:var(--card);font-size:10px;text-decoration:none;color:var(--txt);text-align:center">🗺️ Ruta</a></div></div>`).join('')}</div>`;
+}
+
+initMap();render();
+document.getElementById('searchInput').addEventListener('input',render);
+</script>
+</body>
+</html>
