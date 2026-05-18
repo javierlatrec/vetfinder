@@ -187,20 +187,24 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
     overflow:hidden;
   }
 
-  /* Drag handle */
+  /* Drag handle — tall touch target */
   .sheet-handle{
     display:flex;flex-direction:column;align-items:center;
-    padding:10px 0 2px;flex-shrink:0;cursor:grab;touch-action:none;
+    padding:12px 0 4px;flex-shrink:0;cursor:grab;touch-action:none;
+    -webkit-user-select:none;user-select:none;
   }
-  .sheet-handle-bar{width:36px;height:4px;border-radius:2px;background:var(--xlt)}
+  .sheet-handle-bar{width:40px;height:5px;border-radius:3px;background:var(--xlt);transition:background .2s}
+  .side.is-full .sheet-handle-bar{background:var(--lt)}
 
   /* Summary strip */
   .sheet-summary{
     display:flex;align-items:center;gap:10px;padding:4px 16px 8px;flex-shrink:0;
+    touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none;
   }
   .sheet-summary b{font:800 16px/1 var(--fH);color:var(--pri)}
   .sheet-summary small{font:500 11px/1 var(--f);color:var(--dim)}
-  .sheet-hint{margin-left:auto;color:var(--priL);font:600 10px/1 var(--f);opacity:.7}
+  .sheet-hint{margin-left:auto;color:var(--priL);font:600 10px/1 var(--f);opacity:.7;transition:opacity .2s}
+  .side.is-full .sheet-hint{opacity:0}
 
   .c-img-w{height:110px}
   .dp{width:100%;border-radius:0}
@@ -245,7 +249,7 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
     <div class="sheet-handle" id="sheetHandle">
       <div class="sheet-handle-bar"></div>
     </div>
-    <div class="sheet-summary">
+    <div class="sheet-summary" id="sheetSummary">
       <b id="stTm">0</b><small>clínicas encontradas</small>
       <span class="sheet-hint" id="sheetHint">Desliza ↑</span>
     </div>
@@ -378,71 +382,127 @@ function locateUser(silent){
 }
 
 // ═══ BOTTOM SHEET (MOBILE) ═══
-let sheetSnap='half'; // 'peek' | 'half' | 'full'
-const SNAPS={peek:25,half:55,full:92};
+let sheetSnap='half';
 
 function initSheet(){
-  const isMobile=window.innerWidth<=960;
-  if(!isMobile)return;
+  if(window.innerWidth>960)return;
 
   const sheet=document.getElementById('sheet');
   const handle=document.getElementById('sheetHandle');
-  let startY,startH,dragging=false;
+  const summary=document.getElementById('sheetSummary');  // also draggable
+  const cl=document.getElementById('cl');
+  let startY,dragStartH,dragging=false;
 
-  setSnap('half');
+  // Calculate snap heights in px relative to wrapper (below header)
+  function getSnaps(){
+    const wh=document.querySelector('.wrap').offsetHeight;
+    return {peek:Math.round(wh*0.22),half:Math.round(wh*0.52),full:Math.round(wh*0.95)};
+  }
 
   function setSnap(s){
     sheetSnap=s;
+    const snaps=getSnaps();
     sheet.style.transition='height .35s '+getComputedStyle(document.documentElement).getPropertyValue('--ease');
-    sheet.style.height=SNAPS[s]+'vh';
+    sheet.style.height=snaps[s]+'px';
+    sheet.classList.toggle('is-full',s==='full');
     const hint=document.getElementById('sheetHint');
-    if(hint)hint.textContent=s==='peek'?'Desliza ↑':s==='half'?'Ver más ↑':'';
+    if(hint)hint.textContent=s==='peek'?'Desliza ↑':s==='half'?'Ver más ↑':'Desliza ↓';
     setTimeout(()=>{if(gMap)google.maps.event.trigger(gMap,'resize')},380);
   }
 
+  setSnap('half');
+
+  // ── Handle + Summary drag ──
   function onStart(e){
     dragging=true;
     startY=e.touches?e.touches[0].clientY:e.clientY;
-    startH=sheet.offsetHeight;
+    dragStartH=sheet.offsetHeight;
     sheet.style.transition='none';
   }
   function onMove(e){
     if(!dragging)return;
     e.preventDefault();
     const y=e.touches?e.touches[0].clientY:e.clientY;
-    const diff=startY-y;
-    const newH=Math.max(60,Math.min(window.innerHeight*0.94,startH+diff));
+    const snaps=getSnaps();
+    const newH=Math.max(snaps.peek*0.6,Math.min(snaps.full,dragStartH+(startY-y)));
     sheet.style.height=newH+'px';
   }
   function onEnd(){
     if(!dragging)return;
     dragging=false;
-    const pct=(sheet.offsetHeight/window.innerHeight)*100;
-    // Find closest snap
-    let best='half',minD=999;
-    for(const[k,v]of Object.entries(SNAPS)){const d=Math.abs(pct-v);if(d<minD){minD=d;best=k}}
-    // Also handle velocity-like: if dragged far from start, snap to direction
-    const startPct=(startH/window.innerHeight)*100;
-    if(pct>startPct+12&&best!=='full')best=pct>70?'full':'half';
-    if(pct<startPct-12&&best!=='peek')best=pct<35?'peek':'half';
+    snapToClosest();
+  }
+
+  [handle,summary].forEach(el=>{
+    el.addEventListener('touchstart',onStart,{passive:true});
+    el.addEventListener('touchmove',onMove,{passive:false});
+    el.addEventListener('touchend',onEnd);
+  });
+
+  // ── List pull-to-collapse: when scrolled to top and dragging down → collapse sheet ──
+  let listPulling=false;
+
+  cl.addEventListener('touchstart',e=>{
+    startY=e.touches[0].clientY;
+    dragStartH=sheet.offsetHeight;
+    listPulling=false;
+  },{passive:true});
+
+  cl.addEventListener('touchmove',e=>{
+    const y=e.touches[0].clientY;
+    const dy=y-startY; // positive = dragging down
+
+    // Only intercept if list is at the very top AND dragging downward
+    if(cl.scrollTop<=0 && dy>0){
+      if(!listPulling){
+        listPulling=true;
+        sheet.style.transition='none';
+      }
+      e.preventDefault();
+      const snaps=getSnaps();
+      const newH=Math.max(snaps.peek*0.6,Math.min(snaps.full,dragStartH-dy));
+      sheet.style.height=newH+'px';
+    } else {
+      listPulling=false;
+    }
+  },{passive:false});
+
+  cl.addEventListener('touchend',()=>{
+    if(listPulling){
+      listPulling=false;
+      snapToClosest();
+    }
+  });
+
+  function snapToClosest(){
+    const snaps=getSnaps();
+    const h=sheet.offsetHeight;
+    let best='half',minD=Infinity;
+    Object.entries(snaps).forEach(([k,v])=>{const d=Math.abs(h-v);if(d<minD){minD=d;best=k}});
+    // Directional bias
+    if(dragStartH){
+      const delta=h-dragStartH;
+      if(delta>40 && best!=='full'){
+        if(h>snaps.half+30)best='full';
+        else if(h>snaps.peek+30)best='half';
+      }
+      if(delta<-40 && best!=='peek'){
+        if(h<snaps.half-30)best='peek';
+        else if(h<snaps.full-30)best='half';
+      }
+    }
     setSnap(best);
   }
 
-  handle.addEventListener('touchstart',onStart,{passive:true});
-  handle.addEventListener('touchmove',onMove,{passive:false});
-  handle.addEventListener('touchend',onEnd);
-  handle.addEventListener('mousedown',onStart);
-  window.addEventListener('mousemove',onMove);
-  window.addEventListener('mouseup',onEnd);
-
-  // Tap map → minimize sheet to peek
+  // Tap map → minimize
   document.getElementById('map').addEventListener('click',()=>{
     if(sheetSnap!=='peek')setSnap('peek');
   });
 
-  // Handle resize
+  // Window resize
   window.addEventListener('resize',()=>{
-    if(window.innerWidth>960){sheet.style.height='';sheet.style.transition=''}
+    if(window.innerWidth>960){sheet.style.height='';sheet.style.transition='';sheet.classList.remove('is-full')}
+    else{setSnap(sheetSnap)} // recalc pixel sizes
   });
 }
 
