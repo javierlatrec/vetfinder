@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <meta name="theme-color" content="#0B6B50">
 <meta name="description" content="Encuentra clínicas veterinarias cerca de ti en Madrid. Urgencias 24h, valoraciones y más.">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -34,7 +34,7 @@
   --ease:cubic-bezier(.22,1,.36,1);--bounce:cubic-bezier(.34,1.56,.64,1)
 }
 html,body{height:100%;overflow:hidden}
-body{font-family:var(--f);background:var(--bg);color:var(--txt);display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:var(--f);background:var(--bg);color:var(--txt);display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--xlt);border-radius:2px}
 
 header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;background:rgba(255,255,255,.92);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border-bottom:1px solid rgba(230,232,238,.6);z-index:1000;flex-shrink:0}
@@ -56,8 +56,8 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
 .wrap{display:flex;flex:1;overflow:hidden}
 .side{width:440px;min-width:440px;display:flex;flex-direction:column;background:var(--card);z-index:500;border-right:1px solid var(--brd)}
 
-.fbar{padding:10px 14px 6px;border-bottom:none;display:flex;gap:6px;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;flex-shrink:0}.fbar::-webkit-scrollbar{display:none}
-.svc-bar{padding:0 14px 10px;border-bottom:1px solid var(--brd);display:flex;gap:5px;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;flex-shrink:0}.svc-bar::-webkit-scrollbar{display:none}
+.fbar{padding:10px 14px 6px;border-bottom:none;display:flex;gap:6px;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;flex-shrink:0;position:relative;-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent)}.fbar::-webkit-scrollbar{display:none}
+.svc-bar{padding:0 14px 10px;border-bottom:1px solid var(--brd);display:flex;gap:5px;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;flex-shrink:0;-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent)}.svc-bar::-webkit-scrollbar{display:none}
 .chip{height:34px;padding:0 16px;border-radius:17px;font:600 12px/34px var(--f);cursor:pointer;border:1.5px solid var(--brd);background:var(--card);color:var(--dim);transition:all .2s var(--ease);white-space:nowrap;flex-shrink:0}
 .chip:hover{border-color:var(--priL);color:var(--priL)}
 .chip.on{background:var(--pri);color:#fff;border-color:var(--pri);box-shadow:0 2px 8px rgba(11,107,80,.25)}
@@ -87,11 +87,16 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
 .c-img-w{width:100%;height:140px;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--brdL),var(--bg))}
 .c-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s var(--ease)}
 .c:hover .c-img{transform:scale(1.03)}
+/* Placeholder for cards without photo */
+.c-img-ph{width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(135deg,#0E8C68 0%,#0B6B50 100%);position:relative;overflow:hidden}
+.c-img-ph::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.18),transparent 50%)}
+.c-img-ph-letter{font:800 48px/1 var(--fH);color:rgba(255,255,255,.95);letter-spacing:-2px;position:relative;z-index:1}
+.c.ft .c-img-ph{background:linear-gradient(135deg,#0E8C68 0%,#085640 100%)}
 /* Fav heart on image */
-.c-fav{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.85);backdrop-filter:blur(4px);border:none;cursor:pointer;display:grid;place-items:center;font-size:14px;z-index:3;transition:all .2s;box-shadow:var(--sh)}
+.c-fav{position:absolute;top:8px;right:8px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);backdrop-filter:blur(4px);border:none;cursor:pointer;display:grid;place-items:center;font-size:16px;z-index:3;transition:all .2s;box-shadow:var(--sh)}
 .c-fav:hover{transform:scale(1.1)}.c-fav.liked{background:var(--red);color:#fff}
 /* Share on image */
-.c-share{position:absolute;top:8px;right:46px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.85);backdrop-filter:blur(4px);border:none;cursor:pointer;display:grid;place-items:center;font-size:13px;z-index:3;transition:all .2s;box-shadow:var(--sh)}
+.c-share{position:absolute;top:8px;right:54px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);backdrop-filter:blur(4px);border:none;cursor:pointer;display:grid;place-items:center;font-size:14px;z-index:3;transition:all .2s;box-shadow:var(--sh)}
 .c-share:hover{transform:scale(1.1)}
 
 .c-body{padding:14px 16px 16px}
@@ -112,13 +117,17 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
 .c-offer{display:flex;align-items:center;gap:6px;padding:8px 11px;background:var(--accentBg);border-radius:var(--rXS);margin-bottom:10px;font:600 11px/1.3 var(--f);color:#9A7415;border:1px solid rgba(232,164,39,.12)}
 
 .c-btns{display:flex;gap:6px}
-.c-bp{flex:1;height:38px;border-radius:var(--rS);border:none;background:var(--pri);color:#fff;font:700 12.5px/38px var(--f);cursor:pointer;transition:all .15s;text-align:center}
+.c-bp{flex:1;height:42px;border-radius:var(--rS);border:none;background:var(--pri);color:#fff;font:700 13px/42px var(--f);cursor:pointer;transition:all .15s;text-align:center}
 .c-bp:hover{background:var(--priL)}
-.c-bwa{width:38px;height:38px;border-radius:var(--rS);border:none;background:var(--wa);cursor:pointer;display:grid;place-items:center;transition:all .15s;text-decoration:none}
+.c-bwa{width:42px;height:42px;border-radius:var(--rS);border:none;background:var(--wa);cursor:pointer;display:grid;place-items:center;transition:all .15s;text-decoration:none;flex-shrink:0}
 .c-bwa:hover{opacity:.85}
 .c-bwa svg{width:20px;height:20px;fill:#fff}
-.c-bs{width:38px;height:38px;border-radius:var(--rS);border:1.5px solid var(--brd);background:var(--card);cursor:pointer;display:grid;place-items:center;font-size:15px;transition:all .15s;text-decoration:none;color:var(--sub)}
+.c-bs{width:42px;height:42px;border-radius:var(--rS);border:1.5px solid var(--brd);background:var(--card);cursor:pointer;display:grid;place-items:center;font-size:15px;transition:all .15s;text-decoration:none;color:var(--sub);flex-shrink:0}
 .c-bs:hover{border-color:var(--pri);color:var(--pri);background:var(--greenBg)}
+
+/* Dynamic open-status badge */
+.bg-soon{background:var(--orangeBg);color:var(--orange)}
+.bg-open-now{background:var(--greenBg);color:var(--pri)}
 
 /* CTA BANNER */
 .cta{margin:8px 10px;border-radius:var(--r);padding:20px;background:linear-gradient(135deg,var(--pri),#0D8A65);color:#fff;position:relative;overflow:hidden}
@@ -200,8 +209,9 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
   .logo-t{font-size:17px}
   .wrap{flex-direction:column;position:relative}
   .map-w{position:absolute;top:0;left:0;right:0;bottom:0;z-index:1}
-  .emg-btn{bottom:auto;top:16px;left:16px;transform:none;height:40px;padding:0 18px;border-radius:20px;font-size:12.5px}
+  .emg-btn{bottom:auto;top:12px;right:12px;left:auto;transform:none;height:40px;padding:0 16px;border-radius:20px;font-size:12px;box-shadow:0 4px 16px rgba(201,59,74,.35)}
   .emg-btn:hover{transform:none}
+  .map-ctrls{top:auto;bottom:calc(28vh + 16px);right:12px}
   .side{
     position:absolute;left:0;right:0;bottom:0;z-index:500;
     width:100%;min-width:100%;border-right:none;
@@ -209,9 +219,14 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
     transition:height .35s var(--ease);will-change:height;
     display:flex;flex-direction:column;overflow:hidden;
   }
-  .sheet-handle{display:flex;flex-direction:column;align-items:center;padding:12px 0 4px;flex-shrink:0;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
-  .sheet-handle-bar{width:40px;height:5px;border-radius:3px;background:var(--xlt);transition:background .2s}
-  .side.is-full .sheet-handle-bar{background:var(--lt)}
+  .sheet-handle{display:flex;flex-direction:column;align-items:center;padding:14px 0 6px;flex-shrink:0;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;min-height:30px}
+  .sheet-handle-bar{width:44px;height:5px;border-radius:3px;background:var(--lt);transition:background .2s;animation:handleHint 2s ease-in-out 0.5s 2}
+  .side.is-full .sheet-handle-bar{background:var(--lt);animation:none}
+  .side.has-interacted .sheet-handle-bar{animation:none}
+  @keyframes handleHint{
+    0%,100%{transform:scaleX(1);background:var(--lt)}
+    50%{transform:scaleX(1.4);background:var(--priL)}
+  }
   .sheet-summary{display:flex;align-items:center;gap:10px;padding:4px 16px 8px;flex-shrink:0;touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none}
   .sheet-summary b{font:800 16px/1 var(--fH);color:var(--pri)}
   .sheet-summary small{font:500 11px/1 var(--f);color:var(--dim)}
@@ -220,7 +235,6 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
   .c-img-w{height:110px}
   .dp{width:100%;border-radius:0}
   .dp-gallery img{height:180px}
-  .map-ctrls{top:auto;bottom:16px;right:12px}
 }
 @media(min-width:961px){.sheet-handle{display:none}.sheet-summary{display:none}}
 @media(max-width:480px){.c-img-w{height:100px}.c-body{padding:12px 14px 14px}.c{margin:3px 8px}.fbar{padding:8px 10px 4px}.svc-bar{padding:0 10px 8px}}
@@ -249,8 +263,8 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
   </div>
   <div class="map-w">
     <div id="map"></div>
-    <div class="map-ctrls"><button class="map-btn" id="locBtn" onclick="locateUser()" title="Mi ubicación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/><circle cx="12" cy="12" r="8"/></svg></button></div>
-    <button class="emg-btn" onclick="showEmg()"><span class="emg-dot"></span>Urgencias 24h</button>
+    <div class="map-ctrls"><button class="map-btn" id="locBtn" onclick="locateUser()" title="Mi ubicación" aria-label="Centrar en mi ubicación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/><circle cx="12" cy="12" r="8"/></svg></button></div>
+    <button class="emg-btn" onclick="showEmg()" aria-label="Ver urgencias 24h"><span class="emg-dot"></span>Urgencias 24h</button>
   </div>
 </div>
 <div class="ov" id="ov" onclick="closeDP()"></div>
@@ -284,6 +298,38 @@ const stH=r=>{let s='';for(let i=1;i<=5;i++){const f=i<=Math.round(r||0);s+=`<sv
 const stT=r=>'★'.repeat(Math.round(r||0))+'☆'.repeat(5-Math.round(r||0));
 function hav(lat1,lng1,lat2,lng2){const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180,a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
 function fmtD(km){return km<1?Math.round(km*1000)+' m':km<10?km.toFixed(1)+' km':Math.round(km)+' km'}
+// Compute dynamic open status from Places periods. Returns {open:bool, label:string, urgent:bool} or null.
+function getOpenStatus(oh){
+  if(!oh||!oh.periods||!oh.periods.length)return null;
+  const now=new Date(),day=now.getDay(),hr=now.getHours(),mn=now.getMinutes(),nowMin=hr*60+mn;
+  // 24h: single period with no close
+  if(oh.periods.length===1&&oh.periods[0].open&&!oh.periods[0].close)return{open:true,label:'Abierto 24h',urgent:false};
+  // Find today's periods
+  const todays=oh.periods.filter(p=>p.open&&p.open.day===day);
+  for(const p of todays){
+    const oMin=p.open.hours*60+(p.open.minutes||0);
+    let cMin=p.close?p.close.hours*60+(p.close.minutes||0):24*60;
+    if(p.close&&p.close.day!==p.open.day)cMin+=24*60;
+    if(nowMin>=oMin&&nowMin<cMin){
+      const left=cMin-nowMin;
+      if(left<=60)return{open:true,label:`Cierra en ${left}min`,urgent:true};
+      const ch=Math.floor(cMin/60)%24,cm=cMin%60;
+      return{open:true,label:`Cierra ${String(ch).padStart(2,'0')}:${String(cm).padStart(2,'0')}`,urgent:false};
+    }
+  }
+  // Closed — find next opening
+  for(let d=0;d<7;d++){
+    const checkDay=(day+d)%7;
+    const next=oh.periods.find(p=>p.open&&p.open.day===checkDay&&(d>0||p.open.hours*60+(p.open.minutes||0)>nowMin));
+    if(next){
+      const oh2=next.open.hours,om2=next.open.minutes||0;
+      if(d===0)return{open:false,label:`Abre ${String(oh2).padStart(2,'0')}:${String(om2).padStart(2,'0')}`,urgent:false};
+      if(d===1)return{open:false,label:`Abre mañana ${String(oh2).padStart(2,'0')}:${String(om2).padStart(2,'0')}`,urgent:false};
+      return{open:false,label:'Cerrado',urgent:false};
+    }
+  }
+  return{open:false,label:'Cerrado',urgent:false};
+}
 function detect24(place){
   const nm=(place.name||'').toLowerCase();
   if(['24h','24 h','24 hora','urgencia','emergency','emergencia'].some(k=>nm.includes(k)))return true;
@@ -302,6 +348,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 // ═══ FAVORITES ═══
 function toggleFav(pid,e){
   e.stopPropagation();
+  if(navigator.vibrate)navigator.vibrate(8);
   if(favs.has(pid))favs.delete(pid);else favs.add(pid);
   localStorage.setItem('vf_favs',JSON.stringify([...favs]));
   toast(favs.has(pid)?'💚 Guardada en favoritos':'Eliminada de favoritos');
@@ -350,10 +397,22 @@ function initMap(){
   zones.forEach((z,i)=>setTimeout(()=>searchZone(z.lat,z.lng,z.r),i*400));
   gMap.addListener('idle',()=>{
     renderList();
-    const c=gMap.getCenter(),key=Math.round(c.lat()*100)+','+Math.round(c.lng()*100);
+    const c=gMap.getCenter(),key=Math.round(c.lat()*50)+','+Math.round(c.lng()*50);
     if(!searched.has(key)){searched.add(key);searchZone(c.lat(),c.lng(),getR())}
   });
   renderFilters();locateUser(true);initSheet();initPWA();
+  // Pre-fetch hours for MadVet clinics (3 requests, ~0.05$ each new user, improves badges immediately)
+  setTimeout(()=>{
+    MV.forEach((mv,i)=>setTimeout(()=>{
+      gSvc.getDetails({placeId:mv.pid,fields:['opening_hours']},(d,s)=>{
+        if(s===google.maps.places.PlacesServiceStatus.OK&&d.opening_hours){
+          const target=all.find(x=>x.pid===mv.pid);if(!target)return;
+          const st=getOpenStatus(d.opening_hours);
+          if(st){target.openStatus=st;target.isOpen=st.open;renderList()}
+        }
+      });
+    },i*200));
+  },1500);
 }
 function searchZone(lat,lng,radius){
   const key=Math.round(lat*50)+','+Math.round(lng*50);
@@ -367,7 +426,9 @@ function addResults(results){
   results.forEach(p=>{
     if(all.find(x=>x.pid===p.place_id))return;
     const is24=detect24(p),oh=p.opening_hours;
-    const cl={pid:p.place_id,name:p.name,addr:p.vicinity||'',lat:p.geometry.location.lat(),lng:p.geometry.location.lng(),rating:p.rating||0,rc:p.user_ratings_total||0,is24,isOpen:oh?oh.isOpen():null,photo:p.photos&&p.photos[0]?p.photos[0].getUrl({maxWidth:420,maxHeight:300}):null,mv:0,svcs:[]};
+    let isOpen=null;
+    try{if(oh&&typeof oh.isOpen==='function')isOpen=oh.isOpen()}catch(e){}
+    const cl={pid:p.place_id,name:p.name,addr:p.vicinity||'',lat:p.geometry.location.lat(),lng:p.geometry.location.lng(),rating:p.rating||0,rc:p.user_ratings_total||0,is24,isOpen,openStatus:null,photo:p.photos&&p.photos[0]?p.photos[0].getUrl({maxWidth:420,maxHeight:300}):null,mv:0,svcs:[]};
     const m=new google.maps.Marker({position:{lat:cl.lat,lng:cl.lng},map:gMap,icon:mkIcon(is24?'24h':'def'),zIndex:is24?500:100,title:p.name});
     m.addListener('click',()=>loadDP(cl.pid));cl._m=m;all.push(cl);n++;
   });
@@ -398,7 +459,7 @@ function initSheet(){
   const summary=document.getElementById('sheetSummary');
   const cl=document.getElementById('cl');
   let startY,dragStartH,dragging=false;
-  function getSnaps(){const wh=document.querySelector('.wrap').offsetHeight;return{peek:Math.round(wh*0.22),half:Math.round(wh*0.52),full:Math.round(wh*0.95)}}
+  function getSnaps(){const wh=document.querySelector('.wrap').offsetHeight;return{peek:Math.round(wh*0.28),half:Math.round(wh*0.55),full:Math.round(wh*0.95)}}
   function setSnap(s){
     sheetSnap=s;const snaps=getSnaps();
     sheet.style.transition='height .35s '+getComputedStyle(document.documentElement).getPropertyValue('--ease');
@@ -408,7 +469,7 @@ function initSheet(){
     setTimeout(()=>{if(gMap)google.maps.event.trigger(gMap,'resize')},380);
   }
   setSnap('half');
-  function onStart(e){dragging=true;startY=e.touches?e.touches[0].clientY:e.clientY;dragStartH=sheet.offsetHeight;sheet.style.transition='none'}
+  function onStart(e){dragging=true;startY=e.touches?e.touches[0].clientY:e.clientY;dragStartH=sheet.offsetHeight;sheet.style.transition='none';sheet.classList.add('has-interacted')}
   function onMove(e){if(!dragging)return;e.preventDefault();const y=e.touches?e.touches[0].clientY:e.clientY;const snaps=getSnaps();sheet.style.height=Math.max(snaps.peek*0.6,Math.min(snaps.full,dragStartH+(startY-y)))+'px'}
   function onEnd(){if(!dragging)return;dragging=false;snapToClosest()}
   [handle,summary].forEach(el=>{el.addEventListener('touchstart',onStart,{passive:true});el.addEventListener('touchmove',onMove,{passive:false});el.addEventListener('touchend',onEnd)});
@@ -487,21 +548,29 @@ function renderList(){
 function cH(p,delay){
   const dist=(uLat&&p._d)?`<span class="c-dist">${fmtD(p._d)}</span>`:'';
   const isFav=favs.has(p.pid);
-  const imgOverlay=`<button class="c-fav ${isFav?'liked':''}" onclick="toggleFav('${p.pid}',event)">${isFav?'❤':'🤍'}</button><button class="c-share" onclick="shareCl(all.find(x=>x.pid==='${p.pid}'),event)">↗</button>`;
-  const img=p.photo?`<div class="c-img-w"><img class="c-img" src="${p.photo}" alt="" loading="lazy">${imgOverlay}</div>`:`<div class="c-img-w" style="height:0;padding:0;position:relative">${imgOverlay.replace('c-fav','c-fav').replace('top:8px','top:8px')}</div>`;
-  // For cards without image, put fav/share in body
-  const noImgBtns=!p.photo?`<div style="position:absolute;top:10px;right:10px;display:flex;gap:4px"><button class="c-fav ${isFav?'liked':''}" style="position:static" onclick="toggleFav('${p.pid}',event)">${isFav?'❤':'🤍'}</button><button class="c-share" style="position:static" onclick="shareCl(all.find(x=>x.pid==='${p.pid}'),event)">↗</button></div>`:'';
+  const initial=(p.name||'?').replace(/^(Centro Vet\.|Hospital|Cl[íi]nica)\s+/i,'').trim().charAt(0).toUpperCase();
+  const imgOverlay=`<button class="c-fav ${isFav?'liked':''}" onclick="toggleFav('${p.pid}',event)" aria-label="Favorito">${isFav?'❤':'🤍'}</button><button class="c-share" onclick="shareCl(all.find(x=>x.pid==='${p.pid}'),event)" aria-label="Compartir">↗</button>`;
+  const imgBlock=p.photo
+    ?`<div class="c-img-w"><img class="c-img" src="${p.photo}" alt="" loading="lazy">${imgOverlay}</div>`
+    :`<div class="c-img-w"><div class="c-img-ph"><span class="c-img-ph-letter">${initial}</span></div>${imgOverlay}</div>`;
   const svcsHTML=p.svcs&&p.svcs.length?`<div class="c-svcs">${p.svcs.map(s=>`<span class="svc-tag">${s}</span>`).join('')}</div>`:'';
+  // Dynamic schedule badge — prefers computed status over deprecated isOpen()
+  let schedBadge='';
+  if(p.is24){schedBadge='<span class="bg bg-24">24h</span>';}
+  else if(p.openStatus){
+    const cls=p.openStatus.urgent?'bg-soon':(p.openStatus.open?'bg-open-now':'bg-cl');
+    schedBadge=`<span class="bg ${cls}">${p.openStatus.label}</span>`;
+  } else if(p.isOpen===true){schedBadge='<span class="bg bg-op">Abierto</span>';}
+  else if(p.isOpen===false){schedBadge='<span class="bg bg-cl">Cerrado</span>';}
 
   return`<div class="c ${p.mv?'ft':''} ${activeId===p.pid?'act':''}" onclick="loadDP('${p.pid}')" style="animation-delay:${Math.min(delay,300)}ms">
-${p.photo?`<div class="c-img-w"><img class="c-img" src="${p.photo}" alt="" loading="lazy">${imgOverlay}</div>`:''}
-${noImgBtns}
+${imgBlock}
 <div class="c-body"><div class="c-name">${p.name}</div><div class="c-addr">${p.addr}</div>
 ${svcsHTML}
 <div class="c-meta"><div class="c-stars">${stH(p.rating)}</div><span class="c-rat">${p.rating||'—'}</span><span class="c-rc">(${(p.rc||0).toLocaleString()})</span>
-${p.mv?'<span class="bg bg-mv">★ MadVet</span>':''}${p.is24?'<span class="bg bg-24">24h</span>':''}${p.isOpen===true&&!p.is24?'<span class="bg bg-op">Abierto</span>':''}${p.isOpen===false?'<span class="bg bg-cl">Cerrado</span>':''}${dist}</div>
+${p.mv?'<span class="bg bg-mv">★ MadVet</span>':''}${schedBadge}${dist}</div>
 ${p.offer?`<div class="c-offer">🎁 ${p.offer}</div>`:''}
-<div class="c-btns"><button class="c-bp" onclick="event.stopPropagation();loadDP('${p.pid}')">Ver clínica</button>${p.wa?`<a class="c-bwa" href="https://wa.me/${p.wa}" target="_blank" onclick="event.stopPropagation()" title="WhatsApp">${WA_SVG}</a>`:''}${p.ph?`<a class="c-bs" href="tel:${p.ph}" onclick="event.stopPropagation()">📞</a>`:''}<a class="c-bs" href="https://maps.google.com/?daddr=${p.lat},${p.lng}" target="_blank" onclick="event.stopPropagation()">🗺</a></div></div></div>`
+<div class="c-btns"><button class="c-bp" onclick="event.stopPropagation();loadDP('${p.pid}')">Ver clínica</button>${p.wa?`<a class="c-bwa" href="https://wa.me/${p.wa}" target="_blank" onclick="event.stopPropagation()" title="WhatsApp" aria-label="WhatsApp">${WA_SVG}</a>`:''}${p.ph?`<a class="c-bs" href="tel:${p.ph}" onclick="event.stopPropagation()" aria-label="Llamar">📞</a>`:''}<a class="c-bs" href="https://maps.google.com/?daddr=${p.lat},${p.lng}" target="_blank" onclick="event.stopPropagation()" aria-label="Cómo llegar">🗺</a></div></div></div>`
 }
 
 function ctaHTML(b){
@@ -548,11 +617,14 @@ function renderDP(d,p){
   if(reviews.length){h+=`<div class="dp-st">💬 Reseñas</div>`;reviews.slice(0,5).forEach(r=>{h+=`<div class="rv"><div class="rv-top"><span class="rv-n">${r.author_name}</span><span class="rv-s">${stT(r.rating)}</span></div><div class="rv-t">${(r.text||'').substring(0,250)}${(r.text||'').length>250?'…':''}</div></div>`})}
   h+=`</div>`;document.getElementById('dp').innerHTML=h;
   if(is24&&p&&!p.is24){p.is24=true;if(p._m)p._m.setIcon(mkIcon('24h'));renderList()}
+  // Compute dynamic open status and propagate to list card
+  if(p&&hrs){const st=getOpenStatus(hrs);if(st){p.openStatus=st;p.isOpen=st.open;renderList()}}
 }
 function closeDP(){document.getElementById('ov').classList.remove('on');document.getElementById('dp').classList.remove('on');activeId=null;renderList()}
 
 // ═══ EMERGENCY — ONLY REAL 24H ═══
 function showEmg(){
+  if(navigator.vibrate)navigator.vibrate([10,30,10]);
   let h24=all.filter(p=>p.is24);
   if(uLat)h24.sort((a,b)=>hav(uLat,uLng,a.lat,a.lng)-hav(uLat,uLng,b.lat,b.lng));
   else h24.sort((a,b)=>(b.rating||0)-(a.rating||0));
