@@ -92,6 +92,8 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
 .c-img-ph::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.18),transparent 50%)}
 .c-img-ph-letter{font:800 48px/1 var(--fH);color:rgba(255,255,255,.95);letter-spacing:-2px;position:relative;z-index:1}
 .c.ft .c-img-ph{background:linear-gradient(135deg,#0E8C68 0%,#085640 100%)}
+/* MadVet featured cards get larger photos for visual prominence */
+.c.ft .c-img-w{height:180px}
 /* Fav heart on image */
 .c-fav{position:absolute;top:8px;right:8px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);backdrop-filter:blur(4px);border:none;cursor:pointer;display:grid;place-items:center;font-size:16px;z-index:3;transition:all .2s;box-shadow:var(--sh)}
 .c-fav:hover{transform:scale(1.1)}.c-fav.liked{background:var(--red);color:#fff}
@@ -233,11 +235,12 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
   .sheet-hint{margin-left:auto;color:var(--priL);font:600 10px/1 var(--f);opacity:.7;transition:opacity .2s}
   .side.is-full .sheet-hint{opacity:0}
   .c-img-w{height:110px}
+  .c.ft .c-img-w{height:150px}
   .dp{width:100%;border-radius:0}
   .dp-gallery img{height:180px}
 }
 @media(min-width:961px){.sheet-handle{display:none}.sheet-summary{display:none}}
-@media(max-width:480px){.c-img-w{height:100px}.c-body{padding:12px 14px 14px}.c{margin:3px 8px}.fbar{padding:8px 10px 4px}.svc-bar{padding:0 10px 8px}}
+@media(max-width:480px){.c-img-w{height:100px}.c.ft .c-img-w{height:130px}.c-body{padding:12px 14px 14px}.c{margin:3px 8px}.fbar{padding:8px 10px 4px}.svc-bar{padding:0 10px 8px}}
 
 .c{animation:cardIn .35s var(--ease) both}
 @keyframes cardIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
@@ -278,7 +281,7 @@ const WA_SVG=`<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-
 // ═══ DATA ═══
 const MV=[
   {pid:"ChIJb8mnOJCFQQ0RsSs1rwnvFck",name:"Hospital Veterinario MadVet",addr:"C. Fresa 2, CC Equinoccio, Majadahonda",lat:40.4545,lng:-3.8758,rating:4.9,rc:261,ph:"+34 682 62 82 38",wa:"34682628238",web:"https://madvet.es",offer:"1ª consulta -50%",mv:1,is24:false,svcs:["Exóticos","Cirugía","Ecografía","Dermatología"]},
-  {pid:"ChIJM7K4WZ_RQw0RIkJk6gnQ3Hg",name:"Centro Vet. MadVet Las 4 Huellas",addr:"Trav. Cuatro Calles 15, San Agustín del Guadalix",lat:40.6796,lng:-3.6174,rating:4.8,rc:307,ph:"+34 911 13 41 49",wa:"34911134149",web:"https://madvet.es",offer:"",mv:1,is24:false,svcs:["TAC","Urgencias","Cirugía","Ecografía"]},
+  {pid:"ChIJM7K4WZ_RQw0RIkJk6gnQ3Hg",name:"Centro Vet. MadVet Las 4 Huellas",addr:"Trav. Cuatro Calles 15, San Agustín del Guadalix",lat:40.6796,lng:-3.6174,rating:4.8,rc:307,ph:"+34 911 13 41 49",wa:"34911134149",web:"https://madvet.es",offer:"",mv:1,is24:false,svcs:["Cirugía","Ecografía","Ecocardio"]},
   {pid:"ChIJJcHwJj6IQQ0Rm11Up0mqAHM",name:"Centro Vet. Parque Aluche",addr:"C. de Quero 57, Latina, Madrid",lat:40.3905,lng:-3.7605,rating:4.8,rc:259,ph:"+34 917 17 18 22",wa:"34917171822",web:"https://madvet.es",offer:"Pack vacunación cachorro",mv:1,is24:false,svcs:["Consulta general","Vacunación","Cirugía","Peluquería"]}
 ];
 
@@ -339,7 +342,7 @@ function detect24(place){
   return false;
 }
 function mkIcon(type){
-  if(type==='mv')return{path:'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z',fillColor:'#0B6B50',fillOpacity:1,strokeColor:'#fff',strokeWeight:2.5,scale:1.8,anchor:new google.maps.Point(12,24),labelOrigin:new google.maps.Point(12,9)};
+  if(type==='mv')return{path:'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z',fillColor:'#0B6B50',fillOpacity:1,strokeColor:'#fff',strokeWeight:3,scale:2.1,anchor:new google.maps.Point(12,24),labelOrigin:new google.maps.Point(12,9)};
   if(type==='24h')return{path:google.maps.SymbolPath.CIRCLE,scale:9,fillColor:'#C96B1D',fillOpacity:.9,strokeColor:'#fff',strokeWeight:2};
   return{path:google.maps.SymbolPath.CIRCLE,scale:6,fillColor:'#8B90A6',fillOpacity:.7,strokeColor:'#fff',strokeWeight:1.5};
 }
@@ -382,7 +385,12 @@ function initMap(){
   });
   gSvc=new google.maps.places.PlacesService(gMap);
   MV.forEach(mv=>{
-    const m=new google.maps.Marker({position:{lat:mv.lat,lng:mv.lng},map:gMap,icon:mkIcon('mv'),label:{text:'★',color:'#fff',fontSize:'11px',fontWeight:'700'},zIndex:1000,title:mv.name});
+    // Halo: subtle translucent circle behind the pin for visual emphasis
+    new google.maps.Marker({
+      position:{lat:mv.lat,lng:mv.lng},map:gMap,clickable:false,zIndex:998,
+      icon:{path:google.maps.SymbolPath.CIRCLE,scale:22,fillColor:'#0B6B50',fillOpacity:.12,strokeColor:'#0B6B50',strokeOpacity:.4,strokeWeight:1.5}
+    });
+    const m=new google.maps.Marker({position:{lat:mv.lat,lng:mv.lng},map:gMap,icon:mkIcon('mv'),label:{text:'★',color:'#fff',fontSize:'12px',fontWeight:'700'},zIndex:1000,title:mv.name});
     m.addListener('click',()=>loadDP(mv.pid));mv._m=m;all.push({...mv,_m:m});
   });
   const zones=[
@@ -401,15 +409,22 @@ function initMap(){
     if(!searched.has(key)){searched.add(key);searchZone(c.lat(),c.lng(),getR())}
   });
   renderFilters();locateUser(true);initSheet();initPWA();
-  // Pre-fetch hours for MadVet clinics (3 requests, ~0.05$ each new user, improves badges immediately)
+  // Pre-fetch hours & photos for MadVet clinics (single request per clinic, low cost, big visual win)
   setTimeout(()=>{
     MV.forEach((mv,i)=>setTimeout(()=>{
-      gSvc.getDetails({placeId:mv.pid,fields:['opening_hours']},(d,s)=>{
-        if(s===google.maps.places.PlacesServiceStatus.OK&&d.opening_hours){
-          const target=all.find(x=>x.pid===mv.pid);if(!target)return;
+      gSvc.getDetails({placeId:mv.pid,fields:['opening_hours','photos']},(d,s)=>{
+        if(s!==google.maps.places.PlacesServiceStatus.OK)return;
+        const target=all.find(x=>x.pid===mv.pid);if(!target)return;
+        let changed=false;
+        if(d.opening_hours){
           const st=getOpenStatus(d.opening_hours);
-          if(st){target.openStatus=st;target.isOpen=st.open;renderList()}
+          if(st){target.openStatus=st;target.isOpen=st.open;changed=true}
         }
+        if(d.photos&&d.photos[0]&&!target.photo){
+          target.photo=d.photos[0].getUrl({maxWidth:600,maxHeight:400});
+          changed=true;
+        }
+        if(changed)renderList();
       });
     },i*200));
   },1500);
