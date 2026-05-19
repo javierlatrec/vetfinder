@@ -11,7 +11,7 @@
 <title>VetFinder — Tu veterinario, siempre cerca</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Satoshi:wght@400;500;600;700;800;900&family=General+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Satoshi:wght@400;500;600;700;800;900&family=General+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -31,6 +31,7 @@
   --r:14px;--rS:10px;--rXS:7px;
   --f:'General Sans','Satoshi',system-ui,-apple-system,sans-serif;
   --fH:'Satoshi','General Sans',system-ui,-apple-system,sans-serif;
+  --fS:'Playfair Display',Georgia,serif;
   --ease:cubic-bezier(.22,1,.36,1);--bounce:cubic-bezier(.34,1.56,.64,1)
 }
 html,body{height:100%;overflow:hidden}
@@ -172,10 +173,10 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
 .hero-eyebrow{font:600 10px/1 var(--f);text-transform:uppercase;letter-spacing:1.4px;color:var(--priL);margin-bottom:6px;display:flex;align-items:center;gap:7px}
 .hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--priL);box-shadow:0 0 0 0 var(--priL);animation:livePulse 2s ease-in-out infinite}
 @keyframes livePulse{0%,100%{box-shadow:0 0 0 0 rgba(14,140,104,.6)}50%{box-shadow:0 0 0 6px rgba(14,140,104,0)}}
-.hero-title{font:800 22px/1.2 var(--fH);letter-spacing:-.6px;color:var(--txt);margin-bottom:4px}
+.hero-title{font-family:var(--fS);font-weight:800;font-size:26px;line-height:1.1;letter-spacing:-.8px;color:var(--txt);margin-bottom:6px}
 .hero-sub{font:500 13px/1.4 var(--f);color:var(--sub)}
 .hero-sub b{color:var(--pri);font-weight:700}
-@media(max-width:480px){.hero{padding:14px 14px 10px}.hero-title{font-size:19px}}
+@media(max-width:480px){.hero{padding:14px 14px 10px}.hero-title{font-size:22px;letter-spacing:-.5px}}
 .skel{margin:4px 10px;border:1.5px solid var(--brd);border-radius:var(--r);overflow:hidden;background:var(--card)}
 .skel-img{width:100%;height:130px;background:linear-gradient(90deg,var(--brdL) 25%,var(--bg) 50%,var(--brdL) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
 .skel-body{padding:14px 16px 16px}
@@ -262,9 +263,126 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
 
 .c{animation:cardIn .35s var(--ease) both}
 @keyframes cardIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+body.list-stable .c{animation:none}
+
+/* ═══ SPLASH SCREEN ═══ */
+.splash{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 24px 70px;overflow:hidden;
+  background:linear-gradient(180deg,#f4ead5 0%,#e6dac4 28%,#c8d3c0 58%,#92ad9e 85%,#6d8a7c 100%);
+  transition:opacity .7s ease,transform .7s ease}
+.splash.hide{opacity:0;transform:scale(1.04);pointer-events:none}
+.splash-skip{position:absolute;top:24px;right:24px;background:none;border:none;color:rgba(26,29,43,.55);font:600 11px/1 var(--f);letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;z-index:5;padding:8px 14px;border-radius:20px;transition:all .2s}
+.splash-skip:hover{color:var(--txt);background:rgba(255,255,255,.4)}
+.splash-skyline{position:absolute;left:0;right:0;bottom:0;height:55%;pointer-events:none;z-index:1}
+.splash-skyline svg{width:100%;height:100%;display:block}
+.splash-content{position:relative;z-index:2;text-align:center;max-width:640px;margin-bottom:20px}
+.splash-eyebrow{font:600 11px/1 var(--f);letter-spacing:3.5px;text-transform:uppercase;color:#9a7415;margin-bottom:22px;opacity:0;animation:splashIn .8s .2s ease forwards}
+.splash-title{font-family:var(--fS);font-size:clamp(56px,13vw,108px);font-weight:800;color:#fff;letter-spacing:-3px;line-height:.92;margin-bottom:16px;text-shadow:0 10px 40px rgba(0,0,0,.25);opacity:0;animation:splashIn .9s .35s ease forwards}
+.splash-tagline{font-family:var(--fS);font-size:clamp(18px,2.5vw,22px);font-style:italic;color:var(--txt);margin-bottom:38px;font-weight:400;opacity:0;animation:splashIn .8s .55s ease forwards}
+.splash-tagline em{font-style:italic;color:var(--pri);font-weight:500}
+.splash-cta{background:var(--pri);color:#fff;border:none;padding:18px 30px;border-radius:34px;font:700 15px/1 var(--f);cursor:pointer;display:inline-flex;align-items:center;gap:10px;box-shadow:0 12px 32px rgba(11,107,80,.42);transition:all .2s ease;opacity:0;animation:splashIn .8s .75s ease forwards}
+.splash-cta:hover{transform:translateY(-2px);box-shadow:0 18px 38px rgba(11,107,80,.5)}
+.splash-cta:active{transform:translateY(0)}
+.splash-cta-arrow{font-size:18px;line-height:0;transition:transform .2s}
+.splash-cta:hover .splash-cta-arrow{transform:translateX(4px)}
+.splash-credits{position:absolute;bottom:18px;left:0;right:0;text-align:center;font:400 11px/1 var(--f);color:rgba(26,29,43,.5);z-index:2}
+@keyframes splashIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:480px){
+  .splash{padding:0 20px 50px}
+  .splash-eyebrow{font-size:10px;letter-spacing:3px;margin-bottom:18px}
+  .splash-tagline{margin-bottom:28px}
+  .splash-cta{padding:16px 24px;font-size:14px}
+  .splash-skip{top:16px;right:16px}
+  .splash-credits{bottom:12px;font-size:10px}
+  .splash-skyline{height:48%}
+}
 </style>
 </head>
 <body>
+<div class="splash" id="splash">
+  <button class="splash-skip" onclick="dismissSplash()" aria-label="Saltar intro">Saltar →</button>
+  <div class="splash-skyline">
+    <svg viewBox="0 0 1440 400" preserveAspectRatio="xMidYEnd slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bldgF" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#1d2f25"/><stop offset="1" stop-color="#0a1610"/>
+        </linearGradient>
+        <linearGradient id="bldgM" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2a4234"/><stop offset="1" stop-color="#152620"/>
+        </linearGradient>
+        <linearGradient id="bldgB" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#3d574a" stop-opacity=".7"/><stop offset="1" stop-color="#243a30" stop-opacity=".7"/>
+        </linearGradient>
+      </defs>
+      <!-- Far background buildings -->
+      <g fill="url(#bldgB)">
+        <rect x="0" y="280" width="55" height="120"/>
+        <rect x="50" y="260" width="70" height="140"/>
+        <rect x="115" y="290" width="50" height="110"/>
+        <rect x="160" y="240" width="80" height="160"/>
+        <rect x="235" y="270" width="60" height="130"/>
+        <rect x="1180" y="270" width="65" height="130"/>
+        <rect x="1240" y="250" width="75" height="150"/>
+        <rect x="1310" y="280" width="55" height="120"/>
+        <rect x="1360" y="260" width="80" height="140"/>
+      </g>
+      <!-- Mid-distance buildings -->
+      <g fill="url(#bldgM)">
+        <rect x="290" y="220" width="60" height="180"/>
+        <rect x="345" y="240" width="80" height="160"/>
+        <rect x="420" y="200" width="55" height="200"/>
+        <rect x="470" y="230" width="70" height="170"/>
+        <rect x="535" y="210" width="50" height="190"/>
+        <polygon points="535,210 560,180 585,210 585,400 535,400"/>
+        <rect x="1020" y="230" width="60" height="170"/>
+        <rect x="1075" y="210" width="55" height="190"/>
+        <rect x="1125" y="240" width="60" height="160"/>
+      </g>
+      <!-- Cuatro Torres (signature Madrid landmark) -->
+      <g fill="#0d1c14">
+        <rect x="640" y="80" width="48" height="320"/>
+        <rect x="640" y="80" width="48" height="6" fill="#1d2f25"/>
+        <rect x="708" y="120" width="56" height="280"/>
+        <rect x="784" y="50" width="50" height="350"/>
+        <rect x="780" y="38" width="58" height="14" fill="#1d2f25"/>
+        <rect x="852" y="95" width="54" height="305"/>
+        <!-- Antennas -->
+        <line x1="664" y1="80" x2="664" y2="55" stroke="#0d1c14" stroke-width="2"/>
+        <line x1="809" y1="50" x2="809" y2="20" stroke="#0d1c14" stroke-width="2"/>
+        <line x1="879" y1="95" x2="879" y2="68" stroke="#0d1c14" stroke-width="2"/>
+      </g>
+      <!-- Foreground buildings -->
+      <g fill="url(#bldgF)">
+        <rect x="920" y="200" width="65" height="200"/>
+        <rect x="982" y="220" width="55" height="180"/>
+        <!-- Window dots on foreground building -->
+        <g fill="#3d574a" opacity=".4">
+          <rect x="930" y="220" width="3" height="3"/>
+          <rect x="940" y="220" width="3" height="3"/>
+          <rect x="950" y="220" width="3" height="3"/>
+          <rect x="930" y="240" width="3" height="3"/>
+          <rect x="950" y="240" width="3" height="3"/>
+          <rect x="930" y="260" width="3" height="3"/>
+          <rect x="940" y="260" width="3" height="3"/>
+          <rect x="950" y="260" width="3" height="3"/>
+          <rect x="940" y="280" width="3" height="3"/>
+          <rect x="950" y="280" width="3" height="3"/>
+          <rect x="930" y="300" width="3" height="3"/>
+          <rect x="940" y="300" width="3" height="3"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <div class="splash-content">
+    <div class="splash-eyebrow">Madrid · Tiempo real</div>
+    <h1 class="splash-title">VetFinder</h1>
+    <p class="splash-tagline">Tu veterinario, <em>ahora mismo</em>.</p>
+    <button class="splash-cta" onclick="dismissSplash()">
+      Buscar veterinario cerca
+      <span class="splash-cta-arrow">→</span>
+    </button>
+  </div>
+  <div class="splash-credits">Datos: Google Places · OpenStreetMap</div>
+</div>
 <header>
   <a class="logo" href="#"><div class="logo-i"><svg viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></div><div class="logo-t">Vet<span>Finder</span></div></a>
   <div class="srch"><input id="sI" placeholder="Buscar clínica, zona o servicio..." oninput="renderList()"><svg class="srch-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
@@ -295,6 +413,15 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
 <script>
 // ═══ WHATSAPP SVG ═══
 const WA_SVG=`<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a8 8 0 01-4.243-1.214l-.252-.149-2.868.852.852-2.868-.149-.252A8 8 0 1112 20z"/></svg>`;
+
+// ═══ SPLASH ═══
+function dismissSplash(){
+  const s=document.getElementById('splash');
+  if(!s||s.classList.contains('hide'))return;
+  s.classList.add('hide');
+  setTimeout(()=>{s.style.display='none'},700);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')dismissSplash()});
 
 // ═══ DATA ═══
 const MV=[
@@ -580,8 +707,17 @@ function renderFilters(){
   document.getElementById('sbar').innerHTML=`<span class="sbar-label">Ordenar</span>`+sorts.map(([k,l])=>`<button class="so ${sort===k?'on':''}" onclick="sort='${k}';renderList();renderFilters()">${l}</button>`).join('');
 }
 
-// ═══ RENDER LIST ═══
-function renderList(){
+// ═══ RENDER LIST (debounced — agrupa batches de Places API para evitar flashazos) ═══
+let _renderPending=null;
+function renderList(immediate){
+  if(immediate){
+    if(_renderPending){clearTimeout(_renderPending);_renderPending=null}
+    return _renderListNow();
+  }
+  if(_renderPending)return;
+  _renderPending=setTimeout(()=>{_renderPending=null;_renderListNow()},180);
+}
+function _renderListNow(){
   const q=(document.getElementById('sI').value||'').toLowerCase();
   const bounds=gMap?gMap.getBounds():null;
   let list=all.filter(p=>{
@@ -639,6 +775,11 @@ function renderList(){
     if(applyCachedHours(p)){/* applied from cache, no fetch */}
     else if(!p._hoursPending)setTimeout(()=>lazyFetchHours(p),i*120);
   });
+
+  // After first successful render, mark body so card-in animation stops flashing on subsequent updates
+  if(!document.body.classList.contains('list-stable')&&list.length){
+    setTimeout(()=>document.body.classList.add('list-stable'),700);
+  }
 }
 
 function cH(p,delay){
