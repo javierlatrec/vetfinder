@@ -114,7 +114,10 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
 .c-rat{font:700 13px/1 var(--fH)}.c-rc{font:400 11.5px/1 var(--f);color:var(--dim)}
 .c-dist{font:500 11px/1 var(--f);color:var(--priL);background:var(--greenBg);padding:3px 8px;border-radius:6px}
 .bg{font:700 9px/1 var(--f);padding:4px 9px;border-radius:5px;display:inline-flex;align-items:center;gap:3px;letter-spacing:.3px;text-transform:uppercase}
-.bg-mv{background:var(--pri);color:#fff}.bg-24{background:var(--orangeBg);color:var(--orange)}.bg-op{background:var(--greenBg);color:var(--green)}.bg-cl{background:var(--redBg);color:var(--red)}
+.bg-mv{background:var(--pri);color:#fff}.bg-24{background:var(--orangeBg);color:var(--orange)}
+.bg-op,.bg-open-now{background:#D4F4E2;color:#085640;box-shadow:inset 0 0 0 1px rgba(11,107,80,.18)}
+.bg-cl{background:#FFE0E4;color:#A02838;box-shadow:inset 0 0 0 1px rgba(201,59,74,.2)}
+.bg-soon{background:#FFE9D4;color:#9A4F0F;box-shadow:inset 0 0 0 1px rgba(201,107,29,.2)}
 
 .c-offer{display:flex;align-items:center;gap:6px;padding:8px 11px;background:var(--accentBg);border-radius:var(--rXS);margin-bottom:10px;font:600 11px/1.3 var(--f);color:#9A7415;border:1px solid rgba(232,164,39,.12)}
 
@@ -126,10 +129,6 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
 .c-bwa svg{width:20px;height:20px;fill:#fff}
 .c-bs{width:42px;height:42px;border-radius:var(--rS);border:1.5px solid var(--brd);background:var(--card);cursor:pointer;display:grid;place-items:center;font-size:15px;transition:all .15s;text-decoration:none;color:var(--sub);flex-shrink:0}
 .c-bs:hover{border-color:var(--pri);color:var(--pri);background:var(--greenBg)}
-
-/* Dynamic open-status badge */
-.bg-soon{background:var(--orangeBg);color:var(--orange)}
-.bg-open-now{background:var(--greenBg);color:var(--pri)}
 
 /* CTA BANNER */
 .cta{margin:8px 10px;border-radius:var(--r);padding:20px;background:linear-gradient(135deg,var(--pri),#0D8A65);color:#fff;position:relative;overflow:hidden}
@@ -158,6 +157,25 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
 
 .spinner{width:28px;height:28px;border:3px solid var(--brd);border-top-color:var(--pri);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* Pulse halo for MadVet pins — radiating concentric rings */
+.pulse-halo{position:absolute;width:80px;height:80px;margin:-40px 0 0 -40px;pointer-events:none;z-index:0}
+.pulse-halo::before,.pulse-halo::after{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(11,107,80,.35) 0%,rgba(11,107,80,0) 65%);animation:pulseRing 2.4s cubic-bezier(0.4,0,0.6,1) infinite}
+.pulse-halo::after{animation-delay:1.2s}
+@keyframes pulseRing{
+  0%{transform:scale(.4);opacity:.9}
+  100%{transform:scale(1.6);opacity:0}
+}
+
+/* Hero block on top of sidebar list */
+.hero{padding:20px 18px 14px;border-bottom:1px solid var(--brd)}
+.hero-eyebrow{font:600 10px/1 var(--f);text-transform:uppercase;letter-spacing:1.4px;color:var(--priL);margin-bottom:6px;display:flex;align-items:center;gap:7px}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--priL);box-shadow:0 0 0 0 var(--priL);animation:livePulse 2s ease-in-out infinite}
+@keyframes livePulse{0%,100%{box-shadow:0 0 0 0 rgba(14,140,104,.6)}50%{box-shadow:0 0 0 6px rgba(14,140,104,0)}}
+.hero-title{font:800 22px/1.2 var(--fH);letter-spacing:-.6px;color:var(--txt);margin-bottom:4px}
+.hero-sub{font:500 13px/1.4 var(--f);color:var(--sub)}
+.hero-sub b{color:var(--pri);font-weight:700}
+@media(max-width:480px){.hero{padding:14px 14px 10px}.hero-title{font-size:19px}}
 .skel{margin:4px 10px;border:1.5px solid var(--brd);border-radius:var(--r);overflow:hidden;background:var(--card)}
 .skel-img{width:100%;height:130px;background:linear-gradient(90deg,var(--brdL) 25%,var(--bg) 50%,var(--brdL) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
 .skel-body{padding:14px 16px 16px}
@@ -296,6 +314,36 @@ let gMap,gSvc,all=[],activeId=null,filt='all',sort='best',svcFilt=null,searched=
 let uLat=null,uLng=null,uMarker=null;
 let favs=new Set(JSON.parse(localStorage.getItem('vf_favs')||'[]'));
 
+// ═══ HOURS CACHE (TTL 7 days, periods only — recompute live status) ═══
+const HOURS_TTL=7*24*3600*1000;
+let hoursCache={};
+try{hoursCache=JSON.parse(localStorage.getItem('vf_hours_v1')||'{}')}catch(e){}
+let hoursCacheDirty=false;
+function saveHoursCache(){if(!hoursCacheDirty)return;hoursCacheDirty=false;try{localStorage.setItem('vf_hours_v1',JSON.stringify(hoursCache))}catch(e){}}
+setInterval(saveHoursCache,3000);
+function applyCachedHours(p){
+  const c=hoursCache[p.pid];
+  if(!c||Date.now()-c.ts>HOURS_TTL)return false;
+  const st=getOpenStatus({periods:c.periods});
+  if(st){p.openStatus=st;p.isOpen=st.open;return true}
+  return false;
+}
+function lazyFetchHours(p){
+  if(p._hoursPending||p.openStatus)return;
+  if(applyCachedHours(p))return;
+  p._hoursPending=true;
+  gSvc.getDetails({placeId:p.pid,fields:['opening_hours']},(d,s)=>{
+    if(s!==google.maps.places.PlacesServiceStatus.OK||!d||!d.opening_hours){p._hoursPending=false;return}
+    if(d.opening_hours.periods&&d.opening_hours.periods.length){
+      hoursCache[p.pid]={periods:d.opening_hours.periods,ts:Date.now()};
+      hoursCacheDirty=true;
+    }
+    const st=getOpenStatus(d.opening_hours);
+    if(st){p.openStatus=st;p.isOpen=st.open;renderList()}
+    p._hoursPending=false;
+  });
+}
+
 // ═══ HELPERS ═══
 const stH=r=>{let s='';for(let i=1;i<=5;i++){const f=i<=Math.round(r||0);s+=`<svg viewBox="0 0 24 24" fill="${f?'#E8A427':'none'}" stroke="${f?'#E8A427':'#D5D8E3'}" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`}return s};
 const stT=r=>'★'.repeat(Math.round(r||0))+'☆'.repeat(5-Math.round(r||0));
@@ -372,25 +420,41 @@ function shareCl(p,e){
 // ═══ MAP ═══
 function initMap(){
   gMap=new google.maps.Map(document.getElementById('map'),{
-    center:{lat:40.42,lng:-3.7},zoom:10,disableDefaultUI:true,zoomControl:true,
+    center:{lat:40.4378,lng:-3.7},zoom:12,disableDefaultUI:true,zoomControl:true,
     zoomControlOptions:{position:google.maps.ControlPosition.RIGHT_CENTER},
+    gestureHandling:'greedy',
     styles:[
-      {featureType:"poi",stylers:[{visibility:"off"}]},{featureType:"transit",stylers:[{visibility:"off"}]},
-      {featureType:"water",elementType:"geometry",stylers:[{color:"#dbeaf4"}]},{featureType:"water",elementType:"labels",stylers:[{visibility:"off"}]},
-      {featureType:"landscape.natural",stylers:[{color:"#f0f0ea"}]},{featureType:"landscape.man_made",stylers:[{color:"#f4f4ee"}]},
-      {featureType:"road.highway",elementType:"geometry",stylers:[{color:"#e5e5dd"}]},{featureType:"road.arterial",elementType:"geometry",stylers:[{color:"#eeeee8"}]},
-      {featureType:"road.local",elementType:"geometry",stylers:[{color:"#f8f8f4"}]},{featureType:"road",elementType:"labels.text.fill",stylers:[{color:"#a0a8b5"}]},
-      {featureType:"administrative.locality",elementType:"labels.text.fill",stylers:[{color:"#7a8290"}]}
+      {featureType:"poi",stylers:[{visibility:"off"}]},
+      {featureType:"poi.business",stylers:[{visibility:"off"}]},
+      {featureType:"transit",stylers:[{visibility:"off"}]},
+      {featureType:"water",elementType:"geometry",stylers:[{color:"#c8dde9"}]},
+      {featureType:"water",elementType:"labels",stylers:[{visibility:"off"}]},
+      {featureType:"landscape.natural",stylers:[{color:"#e8eadd"}]},
+      {featureType:"landscape.man_made",stylers:[{color:"#f1f1ea"}]},
+      {featureType:"road.highway",elementType:"geometry",stylers:[{color:"#dadad0"}]},
+      {featureType:"road.highway",elementType:"geometry.stroke",stylers:[{color:"#c8c8be"}]},
+      {featureType:"road.arterial",elementType:"geometry",stylers:[{color:"#e6e6dd"}]},
+      {featureType:"road.local",elementType:"geometry",stylers:[{color:"#f5f5ee"}]},
+      {featureType:"road",elementType:"labels.text.fill",stylers:[{color:"#8a8e9c"}]},
+      {featureType:"road",elementType:"labels.text.stroke",stylers:[{color:"#ffffff"},{weight:2}]},
+      {featureType:"administrative.locality",elementType:"labels.text.fill",stylers:[{color:"#4a4f65"}]},
+      {featureType:"administrative.neighborhood",elementType:"labels.text.fill",stylers:[{color:"#6a6f80"}]}
     ]
   });
   gSvc=new google.maps.places.PlacesService(gMap);
+
+  // Custom OverlayView for animated pulse halos on MadVet pins
+  class PulseHalo extends google.maps.OverlayView{
+    constructor(pos){super();this.pos=pos;this.div=null;}
+    onAdd(){this.div=document.createElement('div');this.div.className='pulse-halo';this.getPanes().overlayMouseTarget.appendChild(this.div);this.div.style.pointerEvents='none';}
+    draw(){if(!this.div)return;const proj=this.getProjection();if(!proj)return;const p=proj.fromLatLngToDivPixel(new google.maps.LatLng(this.pos.lat,this.pos.lng));this.div.style.position='absolute';this.div.style.left=p.x+'px';this.div.style.top=p.y+'px';}
+    onRemove(){if(this.div){this.div.parentNode.removeChild(this.div);this.div=null;}}
+  }
+
   MV.forEach(mv=>{
-    // Halo: subtle translucent circle behind the pin for visual emphasis
-    new google.maps.Marker({
-      position:{lat:mv.lat,lng:mv.lng},map:gMap,clickable:false,zIndex:998,
-      icon:{path:google.maps.SymbolPath.CIRCLE,scale:22,fillColor:'#0B6B50',fillOpacity:.12,strokeColor:'#0B6B50',strokeOpacity:.4,strokeWeight:1.5}
-    });
-    const m=new google.maps.Marker({position:{lat:mv.lat,lng:mv.lng},map:gMap,icon:mkIcon('mv'),label:{text:'★',color:'#fff',fontSize:'12px',fontWeight:'700'},zIndex:1000,title:mv.name});
+    // Animated pulse halo (CSS, GPU-accelerated, no JS interval)
+    const halo=new PulseHalo({lat:mv.lat,lng:mv.lng});halo.setMap(gMap);
+    const m=new google.maps.Marker({position:{lat:mv.lat,lng:mv.lng},map:gMap,icon:mkIcon('mv'),label:{text:'★',color:'#fff',fontSize:'12px',fontWeight:'700'},zIndex:1000,title:mv.name,animation:google.maps.Animation.DROP});
     m.addListener('click',()=>loadDP(mv.pid));mv._m=m;all.push({...mv,_m:m});
   });
   const zones=[
@@ -444,6 +508,8 @@ function addResults(results){
     let isOpen=null;
     try{if(oh&&typeof oh.isOpen==='function')isOpen=oh.isOpen()}catch(e){}
     const cl={pid:p.place_id,name:p.name,addr:p.vicinity||'',lat:p.geometry.location.lat(),lng:p.geometry.location.lng(),rating:p.rating||0,rc:p.user_ratings_total||0,is24,isOpen,openStatus:null,photo:p.photos&&p.photos[0]?p.photos[0].getUrl({maxWidth:420,maxHeight:300}):null,mv:0,svcs:[]};
+    // Try cache first — avoids a network roundtrip
+    applyCachedHours(cl);
     const m=new google.maps.Marker({position:{lat:cl.lat,lng:cl.lng},map:gMap,icon:mkIcon(is24?'24h':'def'),zIndex:is24?500:100,title:p.name});
     m.addListener('click',()=>loadDP(cl.pid));cl._m=m;all.push(cl);n++;
   });
@@ -542,7 +608,15 @@ function renderList(){
   const stm=document.getElementById('stTm');if(stm)stm.textContent=list.length;
 
   const mvL=list.filter(p=>p.mv),rest=list.filter(p=>!p.mv);
-  let h='';
+  const openCount=list.filter(p=>p.isOpen===true||p.is24).length;
+  const c24=list.filter(p=>p.is24).length;
+  const nearMe=!!uLat;
+  // Hero block — context-aware copy ("ahora mismo", live counts)
+  let h=`<div class="hero">
+    <div class="hero-eyebrow">Ahora mismo${nearMe?' · cerca de ti':' · en Madrid'}</div>
+    <div class="hero-title">${openCount>0?openCount+' veterinario'+(openCount===1?'':'s')+' '+(openCount===1?'abierto':'abiertos'):list.length+' veterinario'+(list.length===1?'':'s')+' en tu zona'}</div>
+    <div class="hero-sub"><b>${list.length}</b> en total${c24>0?` · <b>${c24}</b> con urgencias 24h`:''}${nearMe?'':' · Activa tu ubicación para ordenar por cercanía'}</div>
+  </div>`;
   if(mvL.length){h+=`<div class="sec-l"><span class="sec-l-txt">★ Recomendadas</span></div>`;mvL.forEach((p,i)=>h+=cH(p,i*40))}
   if(rest.length){
     h+=`<div class="sec-l"><span class="sec-l-txt">En tu zona</span><span class="cnt">${rest.length}</span></div>`;
@@ -558,6 +632,13 @@ function renderList(){
   if(!list.length)h=`<div class="empty">No se encontraron clínicas<br>con estos filtros</div>`;
   document.getElementById('cl').innerHTML=h;
   all.forEach(p=>{if(p._m)p._m.setVisible(list.includes(p))});
+
+  // Lazy fetch hours for top visible (or hydrate from cache) — keeps open/closed badge fresh
+  list.slice(0,15).forEach((p,i)=>{
+    if(p.openStatus)return;
+    if(applyCachedHours(p)){/* applied from cache, no fetch */}
+    else if(!p._hoursPending)setTimeout(()=>lazyFetchHours(p),i*120);
+  });
 }
 
 function cH(p,delay){
