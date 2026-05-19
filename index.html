@@ -391,7 +391,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')dismissSplash()});
 
 // ═══ DATA ═══
 const MV=[
-  {pid:"ChIJb8mnOJCFQQ0RsSs1rwnvFck",name:"Hospital Veterinario MadVet",addr:"C. Fresa 2, CC Equinoccio, Majadahonda",lat:40.4545,lng:-3.8758,rating:4.9,rc:261,ph:"+34 682 62 82 38",wa:"34682628238",web:"https://madvet.es",offer:"1ª consulta -50%",mv:1,is24:false,svcs:["Exóticos","Cirugía","Ecografía","Dermatología"]},
+  {pid:"ChIJb8mnOJCFQQ0RsSs1rwnvFck",name:"AnimalClinic Majadahonda",addr:"C. Fresa 2, CC Equinoccio, Majadahonda",lat:40.4545,lng:-3.8758,rating:4.9,rc:261,ph:"+34 682 62 82 38",wa:"34682628238",web:"https://madvet.es/animalclinic-majadahonda",offer:"1ª consulta -50%",mv:1,is24:false,svcs:["Exóticos","Cirugía","Ecografía","Dermatología"]},
   {pid:"ChIJM7K4WZ_RQw0RIkJk6gnQ3Hg",name:"Centro Vet. MadVet Las 4 Huellas",addr:"Trav. Cuatro Calles 15, San Agustín del Guadalix",lat:40.6796,lng:-3.6174,rating:4.8,rc:307,ph:"+34 911 13 41 49",wa:"34911134149",web:"https://madvet.es",offer:"",mv:1,is24:false,svcs:["Cirugía","Ecografía","Ecocardio"]},
   {pid:"ChIJJcHwJj6IQQ0Rm11Up0mqAHM",name:"Centro Vet. Parque Aluche",addr:"C. de Quero 57, Latina, Madrid",lat:40.3905,lng:-3.7605,rating:4.8,rc:259,ph:"+34 917 17 18 22",wa:"34917171822",web:"https://madvet.es",offer:"Pack vacunación cachorro",mv:1,is24:false,svcs:["Consulta general","Vacunación","Cirugía","Peluquería"]}
 ];
@@ -400,7 +400,7 @@ const ALL_SVCS=["Exóticos","Cirugía","Ecografía","TAC","Dermatología","Urgen
 const CTA_BANNERS=[
   {title:"Planes de salud MadVet",text:"Igualas desde 199€/año. Vacunas, desparasitaciones y descuentos incluidos.",btn:"Ver igualas",url:"https://madvet.es/igualas",btn2:"Pedir cita",wa:"34682628238"},
   {title:"¿Tienes un animal exótico?",text:"En MadVet Majadahonda somos especialistas en reptiles, aves y pequeños mamíferos.",btn:"Saber más",url:"https://madvet.es",btn2:"WhatsApp",wa:"34682628238"},
-  {title:"Primera consulta al -50%",text:"Ven a conocernos en Hospital Veterinario MadVet Majadahonda.",btn:"Reservar",url:"https://madvet.es",btn2:"Llamar",wa:"34682628238"}
+  {title:"Primera consulta al -50%",text:"Ven a conocernos en AnimalClinic Majadahonda.",btn:"Reservar",url:"https://madvet.es/animalclinic-majadahonda",btn2:"Llamar",wa:"34682628238"}
 ];
 
 let gMap,gSvc,all=[],activeId=null,filt='all',sort='best',svcFilt=null,searched=new Set();
@@ -839,7 +839,11 @@ function renderDP(d,p){
   if(wa)h+=`<a class="dp-bwa" href="https://wa.me/${wa}" target="_blank">${WA_SVG} WhatsApp</a>`;
   if(ph)h+=`<a class="dp-b1" href="tel:${ph}">📞 Llamar</a>`;
   h+=`<a class="dp-b2" href="${gUrl||`https://maps.google.com/?q=${p?.lat},${p?.lng}`}" target="_blank">🗺️ Ruta</a></div>`;
-  if(reviews.length){h+=`<div class="dp-st">💬 Reseñas</div>`;reviews.slice(0,5).forEach(r=>{h+=`<div class="rv"><div class="rv-top"><span class="rv-n">${r.author_name}</span><span class="rv-s">${stT(r.rating)}</span></div><div class="rv-t">${(r.text||'').substring(0,250)}${(r.text||'').length>250?'…':''}</div></div>`})}
+  // MadVet clinics show only 4-5★ reviews (curated showcase). Competitors show all reviews as Google returns them.
+  const isMV=p?.mv===1;
+  const filtered=isMV?reviews.filter(r=>(r.rating||0)>=4):reviews;
+  const showReviews=filtered.length?filtered:reviews;
+  if(showReviews.length){h+=`<div class="dp-st">💬 Reseñas</div>`;showReviews.slice(0,5).forEach(r=>{h+=`<div class="rv"><div class="rv-top"><span class="rv-n">${r.author_name}</span><span class="rv-s">${stT(r.rating)}</span></div><div class="rv-t">${(r.text||'').substring(0,250)}${(r.text||'').length>250?'…':''}</div></div>`})}
   h+=`</div>`;document.getElementById('dp').innerHTML=h;
   if(is24&&p&&!p.is24){p.is24=true;if(p._m)p._m.setIcon(mkIcon('24h'));renderList()}
   // Compute dynamic open status and propagate to list card
