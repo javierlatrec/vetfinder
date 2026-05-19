@@ -266,114 +266,80 @@ header{display:flex;align-items:center;gap:16px;padding:0 20px;height:60px;backg
 body.list-stable .c{animation:none}
 
 /* ═══ SPLASH SCREEN ═══ */
-.splash{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 24px 70px;overflow:hidden;
-  background:linear-gradient(180deg,#f4ead5 0%,#e6dac4 28%,#c8d3c0 58%,#92ad9e 85%,#6d8a7c 100%);
+.splash{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 40%,#fdfcf7 0%,#f0f6ef 40%,#dceadc 75%,#b8d0bd 100%);
   transition:opacity .7s ease,transform .7s ease}
 .splash.hide{opacity:0;transform:scale(1.04);pointer-events:none}
 .splash-skip{position:absolute;top:24px;right:24px;background:none;border:none;color:rgba(26,29,43,.55);font:600 11px/1 var(--f);letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;z-index:5;padding:8px 14px;border-radius:20px;transition:all .2s}
 .splash-skip:hover{color:var(--txt);background:rgba(255,255,255,.4)}
-.splash-skyline{position:absolute;left:0;right:0;bottom:0;height:55%;pointer-events:none;z-index:1}
-.splash-skyline svg{width:100%;height:100%;display:block}
-.splash-content{position:relative;z-index:2;text-align:center;max-width:640px;margin-bottom:20px}
-.splash-eyebrow{font:600 11px/1 var(--f);letter-spacing:3.5px;text-transform:uppercase;color:#9a7415;margin-bottom:22px;opacity:0;animation:splashIn .8s .2s ease forwards}
-.splash-title{font-family:var(--fS);font-size:clamp(56px,13vw,108px);font-weight:800;color:#fff;letter-spacing:-3px;line-height:.92;margin-bottom:16px;text-shadow:0 10px 40px rgba(0,0,0,.25);opacity:0;animation:splashIn .9s .35s ease forwards}
-.splash-tagline{font-family:var(--fS);font-size:clamp(18px,2.5vw,22px);font-style:italic;color:var(--txt);margin-bottom:38px;font-weight:400;opacity:0;animation:splashIn .8s .55s ease forwards}
+.splash-paws{position:absolute;inset:0;pointer-events:none;z-index:1}
+.splash-paws svg{width:100%;height:100%;display:block}
+.splash-mascots{position:relative;margin:0 auto 22px;opacity:0;animation:splashIn .9s .1s ease forwards;z-index:2;display:flex;justify-content:center}
+.splash-logo{max-width:280px;width:100%;height:auto;display:block;filter:drop-shadow(0 6px 20px rgba(11,107,80,.12))}
+@media(max-width:480px){.splash-logo{max-width:220px}.splash-mascots{margin-bottom:18px}}
+.splash-content{position:relative;z-index:2;text-align:center;max-width:640px}
+.splash-eyebrow{font:600 11px/1 var(--f);letter-spacing:3.5px;text-transform:uppercase;color:var(--priL);margin-bottom:18px;opacity:0;animation:splashIn .8s .2s ease forwards}
+.splash-title{font-family:var(--fS);font-size:clamp(56px,13vw,108px);font-weight:800;color:var(--pri);letter-spacing:-3px;line-height:.92;margin-bottom:14px;opacity:0;animation:splashIn .9s .35s ease forwards}
+.splash-tagline{font-family:var(--fS);font-size:clamp(18px,2.5vw,22px);font-style:italic;color:var(--sub);margin-bottom:36px;font-weight:400;opacity:0;animation:splashIn .8s .55s ease forwards}
 .splash-tagline em{font-style:italic;color:var(--pri);font-weight:500}
-.splash-cta{background:var(--pri);color:#fff;border:none;padding:18px 30px;border-radius:34px;font:700 15px/1 var(--f);cursor:pointer;display:inline-flex;align-items:center;gap:10px;box-shadow:0 12px 32px rgba(11,107,80,.42);transition:all .2s ease;opacity:0;animation:splashIn .8s .75s ease forwards}
-.splash-cta:hover{transform:translateY(-2px);box-shadow:0 18px 38px rgba(11,107,80,.5)}
+.splash-cta{background:var(--pri);color:#fff;border:none;padding:18px 30px;border-radius:34px;font:700 15px/1 var(--f);cursor:pointer;display:inline-flex;align-items:center;gap:10px;box-shadow:0 12px 32px rgba(11,107,80,.28);transition:all .2s ease;opacity:0;animation:splashIn .8s .75s ease forwards}
+.splash-cta:hover{transform:translateY(-2px);box-shadow:0 18px 38px rgba(11,107,80,.4)}
 .splash-cta:active{transform:translateY(0)}
 .splash-cta-arrow{font-size:18px;line-height:0;transition:transform .2s}
 .splash-cta:hover .splash-cta-arrow{transform:translateX(4px)}
-.splash-credits{position:absolute;bottom:18px;left:0;right:0;text-align:center;font:400 11px/1 var(--f);color:rgba(26,29,43,.5);z-index:2}
+.splash-credits{position:absolute;bottom:18px;left:0;right:0;text-align:center;font:400 11px/1 var(--f);color:rgba(26,29,43,.45);z-index:2}
 @keyframes splashIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:480px){
-  .splash{padding:0 20px 50px}
-  .splash-eyebrow{font-size:10px;letter-spacing:3px;margin-bottom:18px}
+  .splash{padding:0 20px}
+  .splash-eyebrow{font-size:10px;letter-spacing:3px;margin-bottom:14px}
   .splash-tagline{margin-bottom:28px}
   .splash-cta{padding:16px 24px;font-size:14px}
   .splash-skip{top:16px;right:16px}
   .splash-credits{bottom:12px;font-size:10px}
-  .splash-skyline{height:48%}
 }
 </style>
 </head>
 <body>
 <div class="splash" id="splash">
   <button class="splash-skip" onclick="dismissSplash()" aria-label="Saltar intro">Saltar →</button>
-  <div class="splash-skyline">
-    <svg viewBox="0 0 1440 400" preserveAspectRatio="xMidYEnd slice" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="bldgF" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#1d2f25"/><stop offset="1" stop-color="#0a1610"/>
-        </linearGradient>
-        <linearGradient id="bldgM" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#2a4234"/><stop offset="1" stop-color="#152620"/>
-        </linearGradient>
-        <linearGradient id="bldgB" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#3d574a" stop-opacity=".7"/><stop offset="1" stop-color="#243a30" stop-opacity=".7"/>
-        </linearGradient>
-      </defs>
-      <!-- Far background buildings -->
-      <g fill="url(#bldgB)">
-        <rect x="0" y="280" width="55" height="120"/>
-        <rect x="50" y="260" width="70" height="140"/>
-        <rect x="115" y="290" width="50" height="110"/>
-        <rect x="160" y="240" width="80" height="160"/>
-        <rect x="235" y="270" width="60" height="130"/>
-        <rect x="1180" y="270" width="65" height="130"/>
-        <rect x="1240" y="250" width="75" height="150"/>
-        <rect x="1310" y="280" width="55" height="120"/>
-        <rect x="1360" y="260" width="80" height="140"/>
-      </g>
-      <!-- Mid-distance buildings -->
-      <g fill="url(#bldgM)">
-        <rect x="290" y="220" width="60" height="180"/>
-        <rect x="345" y="240" width="80" height="160"/>
-        <rect x="420" y="200" width="55" height="200"/>
-        <rect x="470" y="230" width="70" height="170"/>
-        <rect x="535" y="210" width="50" height="190"/>
-        <polygon points="535,210 560,180 585,210 585,400 535,400"/>
-        <rect x="1020" y="230" width="60" height="170"/>
-        <rect x="1075" y="210" width="55" height="190"/>
-        <rect x="1125" y="240" width="60" height="160"/>
-      </g>
-      <!-- Cuatro Torres (signature Madrid landmark) -->
-      <g fill="#0d1c14">
-        <rect x="640" y="80" width="48" height="320"/>
-        <rect x="640" y="80" width="48" height="6" fill="#1d2f25"/>
-        <rect x="708" y="120" width="56" height="280"/>
-        <rect x="784" y="50" width="50" height="350"/>
-        <rect x="780" y="38" width="58" height="14" fill="#1d2f25"/>
-        <rect x="852" y="95" width="54" height="305"/>
-        <!-- Antennas -->
-        <line x1="664" y1="80" x2="664" y2="55" stroke="#0d1c14" stroke-width="2"/>
-        <line x1="809" y1="50" x2="809" y2="20" stroke="#0d1c14" stroke-width="2"/>
-        <line x1="879" y1="95" x2="879" y2="68" stroke="#0d1c14" stroke-width="2"/>
-      </g>
-      <!-- Foreground buildings -->
-      <g fill="url(#bldgF)">
-        <rect x="920" y="200" width="65" height="200"/>
-        <rect x="982" y="220" width="55" height="180"/>
-        <!-- Window dots on foreground building -->
-        <g fill="#3d574a" opacity=".4">
-          <rect x="930" y="220" width="3" height="3"/>
-          <rect x="940" y="220" width="3" height="3"/>
-          <rect x="950" y="220" width="3" height="3"/>
-          <rect x="930" y="240" width="3" height="3"/>
-          <rect x="950" y="240" width="3" height="3"/>
-          <rect x="930" y="260" width="3" height="3"/>
-          <rect x="940" y="260" width="3" height="3"/>
-          <rect x="950" y="260" width="3" height="3"/>
-          <rect x="940" y="280" width="3" height="3"/>
-          <rect x="950" y="280" width="3" height="3"/>
-          <rect x="930" y="300" width="3" height="3"/>
-          <rect x="940" y="300" width="3" height="3"/>
+  <div class="splash-paws" aria-hidden="true">
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <g fill="#0B6B50">
+        <!-- Decorative small paws scattered (subtle) -->
+        <g opacity=".06">
+          <g transform="translate(120,140) rotate(-15)">
+            <ellipse cx="0" cy="20" rx="14" ry="16"/>
+            <ellipse cx="-15" cy="-2" rx="6" ry="7"/>
+            <ellipse cx="0" cy="-12" rx="6" ry="8"/>
+            <ellipse cx="15" cy="-2" rx="6" ry="7"/>
+          </g>
+          <g transform="translate(1310,180) rotate(25)">
+            <ellipse cx="0" cy="20" rx="14" ry="16"/>
+            <ellipse cx="-15" cy="-2" rx="6" ry="7"/>
+            <ellipse cx="0" cy="-12" rx="6" ry="8"/>
+            <ellipse cx="15" cy="-2" rx="6" ry="7"/>
+          </g>
+          <g transform="translate(180,720) rotate(40)">
+            <ellipse cx="0" cy="20" rx="16" ry="18"/>
+            <ellipse cx="-17" cy="-2" rx="7" ry="8"/>
+            <ellipse cx="0" cy="-14" rx="7" ry="9"/>
+            <ellipse cx="17" cy="-2" rx="7" ry="8"/>
+          </g>
+          <g transform="translate(1260,740) rotate(-25)">
+            <ellipse cx="0" cy="20" rx="14" ry="16"/>
+            <ellipse cx="-15" cy="-2" rx="6" ry="7"/>
+            <ellipse cx="0" cy="-12" rx="6" ry="8"/>
+            <ellipse cx="15" cy="-2" rx="6" ry="7"/>
+          </g>
         </g>
       </g>
     </svg>
   </div>
+  <div class="splash-mascots" aria-hidden="true">
+    <img src="data:image/png;base64,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" alt="MadVet" class="splash-logo">
+  </div>
   <div class="splash-content">
-    <div class="splash-eyebrow">Madrid · Tiempo real</div>
+    <div class="splash-eyebrow">Tu mascota · Tu veterinario</div>
     <h1 class="splash-title">VetFinder</h1>
     <p class="splash-tagline">Tu veterinario, <em>ahora mismo</em>.</p>
     <button class="splash-cta" onclick="dismissSplash()">
@@ -516,6 +482,27 @@ function detect24(place){
   if(nm.includes('hospital')&&(nm.includes('vet')||nm.includes('animal')))return true;
   return false;
 }
+// Reject false positives — businesses Google tags as 'veterinary_care' but aren't actual clinics
+function isReallyVet(name){
+  if(!name)return true;
+  const n=name.toLowerCase();
+  const reject=[
+    'farmacia','pharmacy',
+    'adiestramiento','adiestrador','adiestrar',
+    'pet shop','petshop','pet store',
+    'tienda de mascot','tienda animal','tienda de animal',
+    'residencia canina','residencia felin','residencia de mascot','residencia de perro',
+    'guardería canina','guarderia canina','guardería de perro','guarderia de perro',
+    'paseador','paseo de perro','dog walker',
+    'criadero','criador',
+    'educación canina','educacion canina',
+    'estética canina','estetica canina','spa canino',
+    'funeraria','crematorio',
+    'comida para','pienso','alimento'
+  ];
+  for(const r of reject){if(n.includes(r))return false}
+  return true;
+}
 function mkIcon(type){
   if(type==='mv')return{path:'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z',fillColor:'#0B6B50',fillOpacity:1,strokeColor:'#fff',strokeWeight:3,scale:2.1,anchor:new google.maps.Point(12,24),labelOrigin:new google.maps.Point(12,9)};
   if(type==='24h')return{path:google.maps.SymbolPath.CIRCLE,scale:9,fillColor:'#C96B1D',fillOpacity:.9,strokeColor:'#fff',strokeWeight:2};
@@ -631,6 +618,7 @@ function addResults(results){
   let n=0;
   results.forEach(p=>{
     if(all.find(x=>x.pid===p.place_id))return;
+    if(!isReallyVet(p.name))return; // Skip pharmacies, pet shops, training centers, etc.
     const is24=detect24(p),oh=p.opening_hours;
     let isOpen=null;
     try{if(oh&&typeof oh.isOpen==='function')isOpen=oh.isOpen()}catch(e){}
